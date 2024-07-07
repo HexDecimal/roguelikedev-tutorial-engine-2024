@@ -17,6 +17,8 @@
         "isort",
         "PAGEDOWN",
         "PAGEUP",
+        "Roguelike",
+        "Roguelikedev",
         "tcod",
         "tileset",
         "tilesheet"
