@@ -1,0 +1,24 @@
+{
+    "files.trimTrailingWhitespace": true,
+    "files.trimFinalNewlines": true,
+    "files.insertFinalNewline": true,
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "always"
+    },
+    "editor.rulers": [
+        120
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff"
+    },
+    "cSpell.words": [
+        "blit",
+        "isort",
+        "PAGEDOWN",
+        "PAGEUP",
+        "tcod",
+        "tileset",
+        "tilesheet"
+    ]
+}

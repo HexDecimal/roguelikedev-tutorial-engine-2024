@@ -1,0 +1,39 @@
+# Project configuiration options for Python tools.
+[tool.mypy] # https://mypy.readthedocs.io/en/stable/config_file.html
+python_version = "3.12"
+files = ["."]
+warn_unused_configs = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = false     # Some calls from NumPy are untyped.
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+no_implicit_reexport = true
+strict_equality = true
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint] # https://docs.astral.sh/ruff/rules/
+select = ["ALL"]
+ignore = [
+    "ANN101",  # missing-type-self
+    "ANN102",  # missing-type-cls
+    "COM",     # flake8-commas, handled by formatter
+    "E501",    # line-too-long
+    "PLR0913", # too-many-arguments
+    "S101",    # assert
+    "S311",    # suspicious-non-cryptographic-random-usage
+    "T10",     # flake8-debugger
+    "T20",     # flake8-print
+]
+
+[tool.ruff.lint.pydocstyle] # https://docs.astral.sh/ruff/settings/#lintpydocstyle
+convention = "google"
