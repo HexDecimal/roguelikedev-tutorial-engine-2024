@@ -35,5 +35,8 @@ ignore = [
     "T20",     # flake8-print
 ]
 
+[tool.ruff.isort]
+required-imports = ["from __future__ import annotations"]
+
 [tool.ruff.lint.pydocstyle] # https://docs.astral.sh/ruff/settings/#lintpydocstyle
 convention = "google"
