@@ -13,6 +13,7 @@
         "editor.defaultFormatter": "charliermarsh.ruff"
     },
     "cSpell.words": [
+        "autoupdate",
         "Benesch",
         "blit",
         "cozette",
