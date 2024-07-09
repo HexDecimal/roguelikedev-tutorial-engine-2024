@@ -26,7 +26,7 @@ select = ["ALL"]
 ignore = [
     "ANN101",  # missing-type-self
     "ANN102",  # missing-type-cls
-    "COM",     # flake8-commas, handled by formatter
+    "COM",     # flake8-commas
     "E501",    # line-too-long
     "PLR0913", # too-many-arguments
     "S101",    # assert
@@ -35,7 +35,7 @@ ignore = [
     "T20",     # flake8-print
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 required-imports = ["from __future__ import annotations"]
 
 [tool.ruff.lint.pydocstyle] # https://docs.astral.sh/ruff/settings/#lintpydocstyle
