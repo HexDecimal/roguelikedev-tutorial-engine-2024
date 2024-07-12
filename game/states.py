@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 import attrs
+import tcod.camera
 import tcod.console
 import tcod.event
 from tcod.event import KeySym
 
 import g
 from game.actions import Move
-from game.components import Graphic, Position
+from game.components import Graphic, MapShape, Position, Tiles
 from game.tags import IsPlayer
+from game.tiles import TILES
 
 from .state import State
 
@@ -35,6 +37,12 @@ class ExampleState(State):
 
     def on_draw(self, console: tcod.console.Console) -> None:
         """Draw the player position."""
+        map_ = g.world[None].relation_tag["ActiveMap"]
+        console_slices, map_slices = tcod.camera.get_slices(
+            (console.height, console.width), map_.components[MapShape], (0, 0)
+        )
+        console.rgb[console_slices] = TILES["graphic"][map_.components[Tiles][map_slices]]
+
         for entity in g.world.Q.all_of(components=[Position, Graphic]):
             pos = entity.components[Position]
             if not (0 <= pos.x < console.width and 0 <= pos.y < console.height):
