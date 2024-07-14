@@ -26,7 +26,8 @@ def main() -> None:
 
     g.world = tcod.ecs.Registry()
     map_ = game.map_tools.new_map(g.world, shape=(45, 80))
-    map_.components[Tiles][22, 30:33] = 1
+    map_.components[Tiles][:, :] = 1
+    map_.components[Tiles][22, 30:33] = 0
     g.world[None].relation_tag["ActiveMap"] = map_
 
     player = g.world[object()]

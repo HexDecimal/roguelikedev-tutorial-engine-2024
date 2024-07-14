@@ -7,8 +7,8 @@ import tcod.console
 
 TILES = np.asarray(
     [
-        ("floor", (ord("."), (0x40, 0x40, 0x40), (0, 0, 0)), 1),
         ("wall", (ord("#"), (0x80, 0x80, 0x80), (0, 0, 0)), 0),
+        ("floor", (ord("."), (0x40, 0x40, 0x40), (0, 0, 0)), 1),
     ],
     dtype=[
         ("name", object),
