@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from random import Random
+
 import tcod.console
 import tcod.context
 import tcod.ecs
@@ -10,9 +12,9 @@ import tcod.event
 import tcod.tileset
 
 import g
-import game.map_tools
+import game.procgen
 import game.states
-from game.components import Graphic, Position, Tiles
+from game.components import Graphic, Position
 from game.tags import IsPlayer
 
 TITLE = "Yet Another Roguelike Tutorial"
@@ -25,19 +27,17 @@ def main() -> None:
     g.console = tcod.console.Console(*CONSOLE_SIZE)
 
     g.world = tcod.ecs.Registry()
-    map_ = game.map_tools.new_map(g.world, shape=(45, 80))
-    map_.components[Tiles][:, :] = 1
-    map_.components[Tiles][22, 30:33] = 0
+    g.world[None].components[Random] = Random()
+
+    map_ = game.procgen.generate_dungeon(world=g.world, shape=(45, 80))
     g.world[None].relation_tag["ActiveMap"] = map_
 
+    (start,) = g.world.Q.all_of(tags=["UpStairs"])
+
     player = g.world[object()]
-    player.components[Position] = Position(g.console.width // 2, g.console.height // 2, map_)
+    player.components[Position] = start.components[Position]
     player.components[Graphic] = Graphic(ord("@"), (255, 255, 255))
     player.tags.add(IsPlayer)
-
-    npc = g.world[object()]
-    npc.components[Position] = Position(g.console.width // 2 - 5, g.console.height // 2, map_)
-    npc.components[Graphic] = Graphic(ord("U"), (255, 255, 255))
 
     g.state = game.states.ExampleState()
 
