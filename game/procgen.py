@@ -14,6 +14,7 @@ from numpy.typing import NDArray  # noqa: TCH002
 
 import game.map_tools
 from game.components import Graphic, Position, Tiles
+from game.tiles import TILE_NAMES
 
 
 @attrs.define
@@ -108,6 +109,7 @@ def generate_dungeon(
     map_height, map_width = shape
     map_ = game.map_tools.new_map(world, shape)
     map_tiles = map_.components[Tiles]
+    map_tiles[:] = TILE_NAMES["wall"]
     rng = world[None].components[Random]
 
     room_width = rng.randint(room_min_size, room_max_size)
@@ -118,7 +120,7 @@ def generate_dungeon(
             rng.randint(0, map_width - room_width), rng.randint(0, map_height - room_height), room_width, room_height
         )
     )
-    map_tiles[rooms[-1].inner] = 1
+    map_tiles[rooms[-1].inner] = TILE_NAMES["floor"]
 
     for _ in range(max_rooms):
         from_room = rng.choice(rooms)
@@ -138,8 +140,8 @@ def generate_dungeon(
                 continue
 
             nearest_room = min(rooms, key=new_room.distance_to)
-            map_tiles[new_room.inner] = 1
-            map_tiles[tunnel_between_indices(rng, nearest_room.center_ij, new_room.center_ij)] = 1
+            map_tiles[new_room.inner] = TILE_NAMES["floor"]
+            map_tiles[tunnel_between_indices(rng, nearest_room.center_ij, new_room.center_ij)] = TILE_NAMES["floor"]
 
             rooms.append(new_room)
             break
@@ -147,7 +149,7 @@ def generate_dungeon(
     # Join random rooms
     for _ in range(2):
         room_a, room_b = rng.sample(rooms, 2)
-        map_tiles[tunnel_between_indices(rng, room_a.center_ij, room_b.center_ij)] = 1
+        map_tiles[tunnel_between_indices(rng, room_a.center_ij, room_b.center_ij)] = TILE_NAMES["floor"]
 
     up_stairs = world[object()]
     up_stairs.components[Position] = Position(*rooms[0].center, map_)

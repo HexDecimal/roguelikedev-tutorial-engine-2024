@@ -5,6 +5,7 @@ from __future__ import annotations
 import attrs
 import tcod.ecs  # noqa: TCH002
 
+import game.actor_tools
 from game.components import MapShape, Position, Tiles
 from game.tiles import TILES
 
@@ -24,3 +25,4 @@ class Move:
         if TILES["walk_cost"][new_position.map.components[Tiles][new_position.ij]] == 0:
             return
         entity.components[Position] += self.direction
+        game.actor_tools.update_fov(entity)

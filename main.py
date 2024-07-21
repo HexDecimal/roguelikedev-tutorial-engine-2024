@@ -12,6 +12,7 @@ import tcod.event
 import tcod.tileset
 
 import g
+import game.actor_tools
 import game.procgen
 import game.states
 from game.components import Graphic, Position
@@ -38,6 +39,7 @@ def main() -> None:
     player.components[Position] = start.components[Position]
     player.components[Graphic] = Graphic(ord("@"), (255, 255, 255))
     player.tags.add(IsPlayer)
+    game.actor_tools.update_fov(player)
 
     g.state = game.states.ExampleState()
 

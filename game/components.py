@@ -6,8 +6,11 @@ from typing import Final, NamedTuple
 
 import attrs
 import numpy as np
-import tcod.ecs  # noqa: TCH002
+import tcod.ecs
+import tcod.ecs.callbacks
 from numpy.typing import NDArray
+
+from game.tags import IsIn
 
 
 @attrs.define(frozen=True)
@@ -45,3 +48,23 @@ class MapShape(NamedTuple):
 
 Tiles: Final = ("Tiles", NDArray[np.int8])
 """The tile indexes of a map entity."""
+
+VisibleTiles: Final = ("VisibleTiles", NDArray[np.bool])
+"""Player visible tiles for a map."""
+
+MemoryTiles: Final = ("MemoryTiles", NDArray[np.int8])
+"""Last seen tiles for a map."""
+
+
+@tcod.ecs.callbacks.register_component_changed(component=Position)
+def on_position_changed(entity: tcod.ecs.Entity, old: Position | None, new: Position | None) -> None:
+    """Called when an entities position is changed."""
+    if old == new:
+        return
+    if old is not None:
+        entity.tags.remove(old)
+    if new is not None:
+        entity.tags.add(new)
+        entity.relation_tag[IsIn] = new.map
+    else:
+        del entity.relation_tags_many[IsIn]
