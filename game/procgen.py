@@ -56,6 +56,12 @@ class RectangularRoom:
         """Return True if this room overlaps with another RectangularRoom."""
         return self.x1 <= other.x2 and self.x2 >= other.x1 and self.y1 <= other.y2 and self.y2 >= other.y1
 
+    def distance_to(self, other: RectangularRoom) -> int:
+        """Return a distance between this room and other."""
+        x, y = self.center
+        x2, y2 = other.center
+        return abs(x - x2) + abs(y - y2)
+
 
 def random_walk_iter(rng: Random, start: tuple[int, int], space: tuple[int, int]) -> Iterator[tuple[int, int]]:
     """Iterate over the coordinates of a random walk."""
@@ -131,10 +137,17 @@ def generate_dungeon(
             if any(new_room.intersects(room) for room in rooms):
                 continue
 
+            nearest_room = min(rooms, key=new_room.distance_to)
+            map_tiles[new_room.inner] = 1
+            map_tiles[tunnel_between_indices(rng, nearest_room.center_ij, new_room.center_ij)] = 1
+
             rooms.append(new_room)
-            map_tiles[rooms[-1].inner] = 1
-            map_tiles[tunnel_between_indices(rng, from_room.center_ij, new_room.center_ij)] = 1
             break
+
+    # Join random rooms
+    for _ in range(2):
+        room_a, room_b = rng.sample(rooms, 2)
+        map_tiles[tunnel_between_indices(rng, room_a.center_ij, room_b.center_ij)] = 1
 
     up_stairs = world[object()]
     up_stairs.components[Position] = Position(*rooms[0].center, map_)
