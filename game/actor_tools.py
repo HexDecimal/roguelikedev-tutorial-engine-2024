@@ -27,11 +27,11 @@ def update_fov(actor: tcod.ecs.Entity) -> None:
 
     world = actor.world
     # Remove visible ghosts
-    for entity in world.Q.all_of(components=[Position], tags=[IsGhost]):
+    for entity in world.Q.all_of(components=[Position], tags=[IsGhost], relations=[(IsIn, map_)]):
         if visible[entity.components[Position].ij]:
             entity.clear()
     # Add ghosts for visible entities
-    for entity in world.Q.all_of(components=[Position]).none_of(tags=[IsGhost]):
+    for entity in world.Q.all_of(components=[Position], relations=[(IsIn, map_)]).none_of(tags=[IsGhost]):
         pos = entity.components[Position]
         if not visible[pos.ij]:
             continue

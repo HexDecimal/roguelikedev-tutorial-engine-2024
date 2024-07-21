@@ -11,8 +11,8 @@ from tcod.event import KeySym
 
 import g
 from game.actions import Move
-from game.components import Graphic, IsIn, MapShape, MemoryTiles, Position, Tiles, VisibleTiles
-from game.tags import IsGhost, IsPlayer
+from game.components import Graphic, MapShape, MemoryTiles, Position, Tiles, VisibleTiles
+from game.tags import IsGhost, IsIn, IsPlayer
 from game.tiles import TILES
 
 from .state import State
@@ -52,7 +52,7 @@ class ExampleState(State):
 
         console.rgb[console_slices] = TILES["graphic"][np.where(visible, light_tiles, dark_tiles)]
 
-        for entity in g.world.Q.all_of(components=[Position, Graphic]):
+        for entity in g.world.Q.all_of(components=[Position, Graphic], relations=[(IsIn, map_)]):
             pos = entity.components[Position]
             if not (0 <= pos.x < console.width and 0 <= pos.y < console.height):
                 continue
