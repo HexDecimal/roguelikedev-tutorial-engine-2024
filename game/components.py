@@ -55,6 +55,9 @@ VisibleTiles: Final = ("VisibleTiles", NDArray[np.bool])
 MemoryTiles: Final = ("MemoryTiles", NDArray[np.int8])
 """Last seen tiles for a map."""
 
+Name: Final = ("Name", str)
+"""Name of an entity."""
+
 
 @tcod.ecs.callbacks.register_component_changed(component=Position)
 def on_position_changed(entity: tcod.ecs.Entity, old: Position | None, new: Position | None) -> None:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 from collections.abc import Iterator  # noqa: TCH003
 from random import Random
 from typing import Final, Self
@@ -63,6 +64,17 @@ class RectangularRoom:
         x2, y2 = other.center
         return abs(x - x2) + abs(y - y2)
 
+    def iter_random_spaces(self, rng: Random, map_: tcod.ecs.Entity) -> Iterator[Position]:
+        """Iterate over floor spaces which do not already have an entity."""
+        spaces = list(itertools.product(range(self.x1 + 1, self.x2 - 1), range(self.y1 + 1, self.y2 - 1)))
+        world = map_.world
+        rng.shuffle(spaces)
+        for x, y in spaces:
+            pos = Position(x, y, map_)
+            if world.Q.all_of(tags=[pos]):
+                continue  # Space already taken.
+            yield pos
+
 
 def random_walk_iter(rng: Random, start: tuple[int, int], space: tuple[int, int]) -> Iterator[tuple[int, int]]:
     """Iterate over the coordinates of a random walk."""
@@ -104,6 +116,7 @@ def generate_dungeon(
     room_min_size: int = 6,
     room_max_size: int = 10,
     max_iterations: int = 100_000,
+    max_monsters_per_room: int = 2,
 ) -> tcod.ecs.Entity:
     """Return a new generated map."""
     map_height, map_width = shape
@@ -159,5 +172,13 @@ def generate_dungeon(
     down_stairs = world[object()]
     down_stairs.components[Position] = Position(*rooms[-1].center, map_)
     down_stairs.components[Graphic] = Graphic(ord(">"), (255, 255, 255))
+
+    for room in rooms[1:-1]:
+        for _, pos in zip(
+            range(rng.randint(0, max_monsters_per_room)), room.iter_random_spaces(rng, map_), strict=False
+        ):
+            monster_kind = world["orc"] if rng.random() < 0.8 else world["troll"]  # noqa: PLR2004
+            new_monster = monster_kind.instantiate()
+            new_monster.components[Position] = pos
 
     return map_

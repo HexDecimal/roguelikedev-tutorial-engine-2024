@@ -8,6 +8,7 @@ IsPlayer: Final = "IsPlayer"
 
 IsGhost: Final = "IsGhost"
 
+IsActor: Final = "IsActor"
 
 IsIn: Final = "IsIn"
 """Entity is-in relation."""

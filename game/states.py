@@ -7,11 +7,11 @@ import numpy as np
 import tcod.camera
 import tcod.console
 import tcod.event
-from tcod.event import KeySym
 
 import g
-from game.actions import Move
+from game.actions import Bump
 from game.components import Graphic, MapShape, MemoryTiles, Position, Tiles, VisibleTiles
+from game.constants import DIRECTION_KEYS
 from game.tags import IsGhost, IsIn, IsPlayer
 from game.tiles import TILES
 
@@ -26,14 +26,8 @@ class ExampleState(State):
         """Handle basic events and movement."""
         (player,) = g.world.Q.all_of(tags=[IsPlayer])
         match event:
-            case tcod.event.KeyDown(sym=KeySym.UP):
-                Move((0, -1))(player)
-            case tcod.event.KeyDown(sym=KeySym.DOWN):
-                Move((0, 1))(player)
-            case tcod.event.KeyDown(sym=KeySym.LEFT):
-                Move((-1, 0))(player)
-            case tcod.event.KeyDown(sym=KeySym.RIGHT):
-                Move((1, 0))(player)
+            case tcod.event.KeyDown(sym=sym) if sym in DIRECTION_KEYS:
+                Bump(DIRECTION_KEYS[sym])(player)
         return self
 
     def on_draw(self, console: tcod.console.Console) -> None:
