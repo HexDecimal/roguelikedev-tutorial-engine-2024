@@ -12,7 +12,7 @@ import g
 from game.actions import Bump
 from game.components import Graphic, MapShape, MemoryTiles, Position, Tiles, VisibleTiles
 from game.constants import DIRECTION_KEYS
-from game.tags import IsGhost, IsIn, IsPlayer
+from game.tags import IsActor, IsGhost, IsIn, IsPlayer
 from game.tiles import TILES
 
 from .state import State
@@ -46,12 +46,17 @@ class ExampleState(State):
 
         console.rgb[console_slices] = TILES["graphic"][np.where(visible, light_tiles, dark_tiles)]
 
+        actor_drawn = set()
         for entity in g.world.Q.all_of(components=[Position, Graphic], relations=[(IsIn, map_)]):
             pos = entity.components[Position]
             if not (0 <= pos.x < console.width and 0 <= pos.y < console.height):
-                continue
+                continue  # Out of bounds
+            if pos in actor_drawn:
+                continue  # Do not render over an actor
             if visible[pos.ij] == (IsGhost in entity.tags):
                 continue
+            if IsActor in entity.tags:
+                actor_drawn.add(pos)
             graphic = entity.components[Graphic]
             console.rgb[["ch", "fg"]][pos.ij] = graphic.ch, graphic.fg
 
