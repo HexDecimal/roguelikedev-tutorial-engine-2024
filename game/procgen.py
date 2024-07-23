@@ -165,12 +165,12 @@ def generate_dungeon(
         map_tiles[tunnel_between_indices(rng, room_a.center_ij, room_b.center_ij)] = TILE_NAMES["floor"]
 
     up_stairs = world[object()]
-    up_stairs.components[Position] = Position(*rooms[0].center, map_)
+    up_stairs.components[Position] = next(rooms[0].iter_random_spaces(rng, map_))
     up_stairs.components[Graphic] = Graphic(ord("<"), (255, 255, 255))
     up_stairs.tags.add("UpStairs")
 
     down_stairs = world[object()]
-    down_stairs.components[Position] = Position(*rooms[-1].center, map_)
+    down_stairs.components[Position] = next(rooms[-1].iter_random_spaces(rng, map_))
     down_stairs.components[Graphic] = Graphic(ord(">"), (255, 255, 255))
 
     for room in rooms[1:-1]:
