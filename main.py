@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-from random import Random
-
 import tcod.console
 import tcod.context
 import tcod.ecs
@@ -15,8 +13,7 @@ import g
 import game.actor_tools
 import game.procgen
 import game.states
-from game.components import Graphic, Name, Position
-from game.tags import IsActor, IsPlayer
+import game.world_init
 
 TITLE = "Yet Another Roguelike Tutorial"
 CONSOLE_SIZE = 80, 50
@@ -27,28 +24,7 @@ def main() -> None:
     tileset = tcod.tileset.load_bdf("assets/cozette.bdf")
     g.console = tcod.console.Console(*CONSOLE_SIZE)
 
-    g.world = tcod.ecs.Registry()
-    g.world[None].components[Random] = Random()
-
-    g.world["orc"].components[Name] = "Orc"
-    g.world["orc"].components[Graphic] = Graphic(ord("o"), (63, 127, 63))
-    g.world["orc"].tags.add(IsActor)
-    g.world["troll"].components[Name] = "Troll"
-    g.world["troll"].components[Graphic] = Graphic(ord("T"), (0, 127, 0))
-    g.world["troll"].tags.add(IsActor)
-
-    map_ = game.procgen.generate_dungeon(world=g.world, shape=(45, 80))
-    g.world[None].relation_tag["ActiveMap"] = map_
-
-    (start,) = g.world.Q.all_of(tags=["UpStairs"])
-
-    player = g.world[object()]
-    player.components[Name] = "Player"
-    player.components[Position] = start.components[Position]
-    player.components[Graphic] = Graphic(ord("@"), (255, 255, 255))
-    player.tags.add(IsActor)
-    player.tags.add(IsPlayer)
-    game.actor_tools.update_fov(player)
+    g.world = game.world_init.new_world()
 
     g.state = game.states.ExampleState()
 
