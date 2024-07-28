@@ -9,6 +9,7 @@ import tcod.console
 import tcod.event
 
 import g
+from game.action_tools import do_player_action
 from game.actions import Bump
 from game.components import Graphic, MapShape, MemoryTiles, Position, Tiles, VisibleTiles
 from game.constants import DIRECTION_KEYS
@@ -27,7 +28,7 @@ class ExampleState(State):
         (player,) = g.world.Q.all_of(tags=[IsPlayer])
         match event:
             case tcod.event.KeyDown(sym=sym) if sym in DIRECTION_KEYS:
-                Bump(DIRECTION_KEYS[sym])(player)
+                return do_player_action(self, player, Bump(DIRECTION_KEYS[sym]))
         return self
 
     def on_draw(self, console: tcod.console.Console) -> None:
