@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import logging
+
 import tcod.console
 import tcod.context
 import tcod.ecs
@@ -21,6 +23,7 @@ CONSOLE_SIZE = 80, 50
 
 def main() -> None:
     """Main entry point."""
+    logging.basicConfig(level="DEBUG")
     tileset = tcod.tileset.load_bdf("assets/cozette.bdf")
     g.console = tcod.console.Console(*CONSOLE_SIZE)
 
