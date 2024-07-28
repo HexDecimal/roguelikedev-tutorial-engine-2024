@@ -8,7 +8,7 @@ import tcod.ecs
 
 import game.actor_tools
 import game.procgen
-from game.components import Graphic, Name, Position
+from game.components import HP, Defense, Graphic, MaxHP, Name, Position, Power
 from game.tags import IsActor, IsPlayer
 
 
@@ -31,16 +31,27 @@ def new_world() -> tcod.ecs.Registry:
     return world
 
 
+def init_new_creature(
+    world: tcod.ecs.Registry,
+    name: str,
+    ch: int,
+    fg: tuple[int, int, int],
+    hp: int,
+    power: int,
+    defense: int,
+) -> None:
+    """Setup a new creature type."""
+    race = world[name]
+    race.tags.add(IsActor)
+    race.components[Name] = name
+    race.components[Graphic] = Graphic(ch, fg)
+    race.components[HP] = race.components[MaxHP] = hp
+    race.components[Power] = power
+    race.components[Defense] = defense
+
+
 def init_creatures(world: tcod.ecs.Registry) -> None:
     """Initialize monster database."""
-    world["player"].components[Name] = "Player"
-    world["player"].components[Graphic] = Graphic(ord("@"), (255, 255, 255))
-    world["player"].tags.add(IsActor)
-
-    world["orc"].components[Name] = "Orc"
-    world["orc"].components[Graphic] = Graphic(ord("o"), (63, 127, 63))
-    world["orc"].tags.add(IsActor)
-
-    world["troll"].components[Name] = "Troll"
-    world["troll"].components[Graphic] = Graphic(ord("T"), (0, 127, 0))
-    world["troll"].tags.add(IsActor)
+    init_new_creature(world, name="player", ch=ord("@"), fg=(255, 255, 255), hp=30, power=5, defense=2)
+    init_new_creature(world, name="orc", ch=ord("o"), fg=(63, 127, 63), hp=10, power=3, defense=0)
+    init_new_creature(world, name="troll", ch=ord("T"), fg=(0, 127, 0), hp=16, power=4, defense=1)

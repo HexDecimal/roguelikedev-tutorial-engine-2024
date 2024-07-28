@@ -58,6 +58,18 @@ MemoryTiles: Final = ("MemoryTiles", NDArray[np.int8])
 Name: Final = ("Name", str)
 """Name of an entity."""
 
+HP: Final = ("HP", int)
+"""Current hit points."""
+
+MaxHP: Final = ("MaxHP", int)
+"""Maximum hit points."""
+
+Power: Final = ("Power", int)
+"""Attack power."""
+
+Defense: Final = ("Defense", int)
+"""Defense power."""
+
 
 @tcod.ecs.callbacks.register_component_changed(component=Position)
 def on_position_changed(entity: tcod.ecs.Entity, old: Position | None, new: Position | None) -> None:
