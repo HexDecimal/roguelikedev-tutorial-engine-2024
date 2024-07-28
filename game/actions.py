@@ -7,6 +7,7 @@ import tcod.ecs  # noqa: TCH002
 
 import game.actor_tools
 from game.action import ActionResult, Impossible, Success
+from game.combat import apply_damage, melee_damage
 from game.components import MapShape, Name, Position, Tiles
 from game.tags import IsActor
 from game.tiles import TILES
@@ -48,7 +49,15 @@ class Melee:
         except ValueError:
             return Impossible("Nothing there to attack.")  # No actor at position.
 
-        print(f"""You kick the {target.components.get(Name, "?")}, much to its annoyance!""")
+        damage = melee_damage(entity, target)
+
+        attack_desc = f"""{entity.components[Name]} attacks {target.components[Name]}"""
+        if damage > 0:
+            print(f"{attack_desc} for {damage} hit points.")
+            apply_damage(target, damage)
+        else:
+            print(f"{attack_desc} but does no damage.")
+
         return Success()
 
 
