@@ -11,12 +11,14 @@ import tcod.event
 import g
 from game.action_tools import do_player_action
 from game.actions import Bump
-from game.components import Graphic, MapShape, MemoryTiles, Position, Tiles, VisibleTiles
+from game.components import HP, Graphic, MapShape, MaxHP, MemoryTiles, Position, Tiles, VisibleTiles
 from game.constants import DIRECTION_KEYS
+from game.rendering import render_bar
+from game.state import State
 from game.tags import IsActor, IsGhost, IsIn, IsPlayer
 from game.tiles import TILES
 
-from .state import State
+from . import color
 
 
 @attrs.define
@@ -63,3 +65,14 @@ class ExampleState(State):
 
         console.rgb["fg"][console_slices][not_visible] //= 2
         console.rgb["bg"][console_slices][not_visible] //= 2
+
+        render_bar(
+            console,
+            x=0,
+            y=45,
+            width=20,
+            value=player.components[HP] / player.components[MaxHP],
+            text=f" HP: {player.components[HP]}/{player.components[MaxHP]}",
+            empty_color=color.bar_empty,
+            full_color=color.bar_filled,
+        )
