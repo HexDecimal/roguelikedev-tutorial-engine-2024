@@ -6,9 +6,10 @@ import logging
 
 import tcod.ecs  # noqa: TCH002
 
+import game.states
 from game.action import Action, Impossible, Success
 from game.actor_tools import update_fov
-from game.components import AI
+from game.components import AI, HP
 from game.state import State  # noqa: TCH001
 from game.tags import IsActor, IsIn, IsPlayer
 
@@ -23,10 +24,12 @@ def do_player_action(state: State, player: tcod.ecs.Entity, action: Action) -> S
     match result:
         case Success():
             handle_enemy_turns(player.registry, player.relation_tag[IsIn])
-            return state
         case Impossible():
             logger.debug("%r", result)
-            return state
+
+    if player.components[HP] <= 0:
+        return game.states.GameOver()
+    return state
 
 
 def handle_enemy_turns(world: tcod.ecs.Registry, map_: tcod.ecs.Entity) -> None:
