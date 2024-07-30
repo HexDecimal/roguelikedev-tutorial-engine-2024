@@ -11,6 +11,7 @@ import game.actor_tools
 from game.action import ActionResult, Impossible, Success
 from game.combat import apply_damage, melee_damage
 from game.components import MapShape, Name, Position, Tiles, VisibleTiles
+from game.messages import add_message
 from game.tags import IsActor, IsIn, IsPlayer
 from game.tiles import TILES
 from game.travel import path_to
@@ -57,13 +58,13 @@ class Melee:
             return Impossible("Nothing there to attack.")  # No actor at position.
 
         damage = melee_damage(entity, target)
-
+        attack_color = "player_atk" if IsPlayer in entity.tags else "enemy_atk"
         attack_desc = f"""{entity.components[Name]} attacks {target.components[Name]}"""
         if damage > 0:
-            print(f"{attack_desc} for {damage} hit points.")
+            add_message(entity.registry, f"{attack_desc} for {damage} hit points.", attack_color)
             apply_damage(target, damage)
         else:
-            print(f"{attack_desc} but does no damage.")
+            add_message(entity.registry, f"{attack_desc} but does no damage.", attack_color)
 
         return Success()
 

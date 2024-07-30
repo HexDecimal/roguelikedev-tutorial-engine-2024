@@ -5,6 +5,7 @@ from __future__ import annotations
 import tcod.ecs
 
 from game.components import HP, Defense, Graphic, Name, Power
+from game.messages import add_message
 from game.tags import IsPlayer
 
 
@@ -22,8 +23,12 @@ def apply_damage(entity: tcod.ecs.Entity, damage: int) -> None:
 
 def die(entity: tcod.ecs.Entity) -> None:
     """Kill an entity."""
-    death_message = "You died!" if IsPlayer in entity.tags else f"{entity.components[Name]} is dead!"
+    is_player = IsPlayer in entity.tags
+    add_message(
+        entity.registry,
+        text="You died!" if is_player else f"{entity.components[Name]} is dead!",
+        fg="player_die" if is_player else "enemy_die",
+    )
     entity.components[Graphic] = Graphic(ord("%"), (191, 0, 0))
     entity.components[Name] = f"remains of {entity.components[Name]}"
     del entity.relation_tag[tcod.ecs.IsA]
-    print(death_message)

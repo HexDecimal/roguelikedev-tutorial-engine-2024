@@ -9,6 +9,7 @@ import tcod.ecs
 import game.actor_tools
 import game.procgen
 from game.components import HP, Defense, Graphic, MaxHP, Name, Position, Power
+from game.messages import MessageLog, add_message
 from game.tags import IsActor, IsPlayer
 
 
@@ -16,6 +17,7 @@ def new_world() -> tcod.ecs.Registry:
     """Return a new world."""
     world = tcod.ecs.Registry()
     world[None].components[Random] = Random()
+    world[None].components[MessageLog] = MessageLog()
 
     init_creatures(world)
 
@@ -28,6 +30,8 @@ def new_world() -> tcod.ecs.Registry:
     player.components[Position] = start.components[Position]
     player.tags.add(IsPlayer)
     game.actor_tools.update_fov(player)
+
+    add_message(world, "Hello and welcome, adventurer, to yet another dungeon!", "welcome_text")
     return world
 
 
