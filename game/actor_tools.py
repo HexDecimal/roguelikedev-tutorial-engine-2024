@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Final
+
 import numpy as np
 import tcod.constants
 import tcod.ecs
@@ -15,25 +17,29 @@ from game.tiles import TILES
 def update_fov(actor: tcod.ecs.Entity) -> None:
     """Update the FOV of an actor."""
     assert IsPlayer in actor.tags
-    map_ = actor.relation_tag[IsIn]
-    transparency = TILES["transparent"][map_.components[Tiles]]
-    map_.components[VisibleTiles] = visible = tcod.map.compute_fov(
+    map_: Final = actor.relation_tag[IsIn]
+    transparency: Final = TILES["transparent"][map_.components[Tiles]]
+    old_visible: Final = map_.components[VisibleTiles]
+    map_.components[VisibleTiles] = new_visible = tcod.map.compute_fov(
         transparency,
         pov=actor.components[Position].ij,
         radius=10,
         algorithm=tcod.constants.FOV_SYMMETRIC_SHADOWCAST,
     )
-    map_.components[MemoryTiles] = np.where(visible, map_.components[Tiles], map_.components[MemoryTiles])
+    map_.components[MemoryTiles] = np.where(new_visible, map_.components[Tiles], map_.components[MemoryTiles])
 
-    world = actor.world
+    now_invisible: Final = old_visible & ~new_visible  # Tiles which have gone out of view, should leave ghosts
+    all_visible: Final = old_visible & new_visible  # Tiles visible in old and new FOV, should clear ghosts
+
+    world: Final = actor.world
     # Remove visible ghosts
     for entity in world.Q.all_of(components=[Position], tags=[IsGhost], relations=[(IsIn, map_)]):
-        if visible[entity.components[Position].ij]:
+        if all_visible[entity.components[Position].ij]:
             entity.clear()
-    # Add ghosts for visible entities
+    # Add ghosts for entities going out of view
     for entity in world.Q.all_of(components=[Position], relations=[(IsIn, map_)]).none_of(tags=[IsGhost]):
         pos = entity.components[Position]
-        if not visible[pos.ij]:
+        if not now_invisible[pos.ij]:
             continue
         ghost = world[object()]
         ghost.tags.add(IsGhost)

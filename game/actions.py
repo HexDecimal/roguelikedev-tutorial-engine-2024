@@ -7,7 +7,6 @@ from typing import Final, Self
 import attrs
 import tcod.ecs  # noqa: TCH002
 
-import game.actor_tools
 from game.action import ActionResult, Impossible, Success
 from game.combat import apply_damage, melee_damage
 from game.components import MapShape, Name, Position, Tiles, VisibleTiles
@@ -37,8 +36,6 @@ class Move:
         if entity.world.Q.all_of(tags=[IsActor, new_position]):
             return Impossible("Something is in the way.")  # Blocked by actor
 
-        if IsPlayer in entity.tags:
-            game.actor_tools.update_fov(entity)  # Update ghosts before moving
         entity.components[Position] += self.direction
         return Success()
 
