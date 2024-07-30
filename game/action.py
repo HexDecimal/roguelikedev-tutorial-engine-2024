@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import TypeAlias
+from typing import Protocol, TypeAlias
 
 import attrs
-import tcod.ecs
+import tcod.ecs  # noqa: TCH002
 
 
 @attrs.define
@@ -23,4 +22,9 @@ class Impossible:
 
 ActionResult: TypeAlias = Success | Impossible  # noqa: UP040
 
-Action: TypeAlias = Callable[[tcod.ecs.Entity], ActionResult]  # noqa: UP040
+
+class Action(Protocol):
+    """Action protocol."""
+
+    def __call__(self, actor: tcod.ecs.Entity, /) -> ActionResult:
+        """Perform action."""

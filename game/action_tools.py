@@ -7,6 +7,7 @@ import logging
 import tcod.ecs  # noqa: TCH002
 
 from game.action import Action, Impossible, Success
+from game.components import AI
 from game.state import State  # noqa: TCH001
 from game.tags import IsActor, IsIn, IsPlayer
 
@@ -28,5 +29,5 @@ def do_player_action(state: State, player: tcod.ecs.Entity, action: Action) -> S
 
 def handle_enemy_turns(world: tcod.ecs.Registry, map_: tcod.ecs.Entity) -> None:
     """Perform enemy turns."""
-    for enemy in world.Q.all_of(tags=[IsActor], relations=[(IsIn, map_)]).none_of(tags=[IsPlayer]):
-        logger.debug("%s", f"The {enemy} wonders when it will get to take a real turn.")
+    for enemy in world.Q.all_of(components=[AI], tags=[IsActor], relations=[(IsIn, map_)]):
+        enemy.components[AI](enemy)

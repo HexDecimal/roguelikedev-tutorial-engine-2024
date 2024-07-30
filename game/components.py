@@ -10,6 +10,7 @@ import tcod.ecs
 import tcod.ecs.callbacks
 from numpy.typing import NDArray
 
+from game.action import Action
 from game.tags import IsIn
 
 
@@ -69,6 +70,9 @@ Power: Final = ("Power", int)
 
 Defense: Final = ("Defense", int)
 """Defense power."""
+
+AI: Final = ("AI", Action)
+"""Action for AI actor."""
 
 
 @tcod.ecs.callbacks.register_component_changed(component=Position)

@@ -14,7 +14,8 @@ import tcod.los
 from numpy.typing import NDArray  # noqa: TCH002
 
 import game.map_tools
-from game.components import Graphic, Position, Tiles
+from game.actions import HostileAI
+from game.components import AI, Graphic, Position, Tiles
 from game.tiles import TILE_NAMES
 
 
@@ -180,5 +181,6 @@ def generate_dungeon(
             monster_kind = world["orc"] if rng.random() < 0.8 else world["troll"]  # noqa: PLR2004
             new_monster = monster_kind.instantiate()
             new_monster.components[Position] = pos
+            new_monster.components[AI] = HostileAI()
 
     return map_

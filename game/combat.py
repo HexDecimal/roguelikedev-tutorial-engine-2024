@@ -22,8 +22,8 @@ def apply_damage(entity: tcod.ecs.Entity, damage: int) -> None:
 
 def die(entity: tcod.ecs.Entity) -> None:
     """Kill an entity."""
-    death_message = "You died!" if IsPlayer is entity.tags else f"{entity.components[Name]} is dead!"
+    death_message = "You died!" if IsPlayer in entity.tags else f"{entity.components[Name]} is dead!"
     entity.components[Graphic] = Graphic(ord("%"), (191, 0, 0))
     entity.components[Name] = f"remains of {entity.components[Name]}"
-    del entity.relation_tags[tcod.ecs.IsA]
+    del entity.relation_tag[tcod.ecs.IsA]
     print(death_message)

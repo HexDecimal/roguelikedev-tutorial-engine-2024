@@ -26,6 +26,7 @@ DIRECTION_KEYS: Final = {
     KeySym.KP_1: (-1, 1),
     KeySym.KP_9: (1, -1),
     KeySym.KP_3: (1, 1),
+    KeySym.KP_5: (0, 0),
     # VI keys
     KeySym.h: (-1, 0),
     KeySym.l: (1, 0),
@@ -35,4 +36,5 @@ DIRECTION_KEYS: Final = {
     KeySym.b: (-1, 1),
     KeySym.u: (1, -1),
     KeySym.n: (1, 1),
+    KeySym.PERIOD: (0, 0),
 }
