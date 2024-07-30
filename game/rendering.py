@@ -7,7 +7,9 @@ from collections.abc import Reversible  # noqa: TCH003
 import tcod.console
 import tcod.ecs
 
+from game.components import MapShape, Name, Position, VisibleTiles
 from game.messages import Message, MessageLog
+from game.tags import IsGhost
 
 from . import color
 
@@ -50,3 +52,18 @@ def render_messages(world: tcod.ecs.Registry, width: int, height: int) -> tcod.c
         if y <= 0:
             break  # No more space to print messages.
     return console
+
+
+def render_names_at_position(console: tcod.console.Console, x: int, y: int, pos: Position) -> None:
+    """Render names of entities at `pos` to `console`."""
+    map_height, map_width = pos.map.components[MapShape]
+    if not (0 <= x < map_width and 0 <= y < map_height):
+        return
+    is_visible = pos.map.components[VisibleTiles].item(pos.ij)
+    known_entities = [
+        entity
+        for entity in pos.map.registry.Q.all_of(components=[Name], tags=[pos])
+        if is_visible or (IsGhost in entity.tags)
+    ]
+    names = ", ".join(entity.components[Name] for entity in known_entities)
+    console.print(x=x, y=y, string=names, fg=color.white)

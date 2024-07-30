@@ -7,6 +7,7 @@ import logging
 import tcod.ecs  # noqa: TCH002
 
 from game.action import Action, Impossible, Success
+from game.actor_tools import update_fov
 from game.components import AI
 from game.state import State  # noqa: TCH001
 from game.tags import IsActor, IsIn, IsPlayer
@@ -18,6 +19,7 @@ def do_player_action(state: State, player: tcod.ecs.Entity, action: Action) -> S
     """Perform an action on the player."""
     assert IsPlayer in player.tags
     result = action(player)
+    update_fov(player)
     match result:
         case Success():
             handle_enemy_turns(player.registry, player.relation_tag[IsIn])

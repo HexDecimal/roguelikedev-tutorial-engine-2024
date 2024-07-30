@@ -7,7 +7,7 @@ import tcod.constants
 import tcod.ecs
 import tcod.map
 
-from game.components import Graphic, MemoryTiles, Position, Tiles, VisibleTiles
+from game.components import Graphic, MemoryTiles, Name, Position, Tiles, VisibleTiles
 from game.tags import IsGhost, IsIn, IsPlayer
 from game.tiles import TILES
 
@@ -39,3 +39,5 @@ def update_fov(actor: tcod.ecs.Entity) -> None:
         ghost.tags.add(IsGhost)
         ghost.components[Position] = pos
         ghost.components[Graphic] = entity.components[Graphic]
+        if Name in entity.components:
+            ghost.components[Name] = entity.components[Name]

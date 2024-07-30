@@ -13,7 +13,7 @@ from game.action_tools import do_player_action
 from game.actions import Bump
 from game.components import HP, Graphic, MapShape, MaxHP, MemoryTiles, Position, Tiles, VisibleTiles
 from game.constants import DIRECTION_KEYS
-from game.rendering import render_bar, render_messages
+from game.rendering import render_bar, render_messages, render_names_at_position
 from game.state import State
 from game.tags import IsActor, IsGhost, IsIn, IsPlayer
 from game.tiles import TILES
@@ -77,3 +77,5 @@ class ExampleState(State):
             full_color=color.bar_filled,
         )
         render_messages(g.world, width=40, height=5).blit(dest=console, dest_x=21, dest_y=45)
+        if g.cursor_location:
+            render_names_at_position(console, x=21, y=44, pos=Position(*g.cursor_location, map_))

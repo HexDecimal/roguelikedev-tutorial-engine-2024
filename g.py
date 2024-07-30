@@ -22,3 +22,6 @@ state: game.state.State
 
 world: tcod.ecs.Registry
 """The active world."""
+
+cursor_location: tuple[int, int] | None = None
+"""Mouse or cursor screen position."""

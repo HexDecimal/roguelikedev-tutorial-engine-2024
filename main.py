@@ -38,9 +38,14 @@ def main() -> None:
             g.context.present(g.console)
 
             for event in tcod.event.wait():
+                event = g.context.convert_event(event)  # noqa: PLW2901
                 match event:
                     case tcod.event.Quit():
                         raise SystemExit
+                    case tcod.event.MouseMotion(position=position):
+                        g.cursor_location = position
+                    case tcod.event.WindowEvent(type="WindowLeave"):
+                        g.cursor_location = None
                 g.state = g.state.on_event(event)
 
 

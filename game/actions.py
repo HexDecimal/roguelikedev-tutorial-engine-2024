@@ -37,9 +37,9 @@ class Move:
         if entity.world.Q.all_of(tags=[IsActor, new_position]):
             return Impossible("Something is in the way.")  # Blocked by actor
 
-        entity.components[Position] += self.direction
         if IsPlayer in entity.tags:
-            game.actor_tools.update_fov(entity)
+            game.actor_tools.update_fov(entity)  # Update ghosts before moving
+        entity.components[Position] += self.direction
         return Success()
 
 
