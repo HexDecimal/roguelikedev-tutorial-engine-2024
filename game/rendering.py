@@ -112,7 +112,7 @@ def main_render(world: tcod.ecs.Registry, console: tcod.console.Console) -> None
         y=45,
         width=20,
         value=player.components[HP] / player.components.get(MaxHP, 1),
-        text=f" HP: {player.components[HP]}/{player.components.get(MaxHP, 1)}",
+        text=f" HP: {player.components[HP]}/{player.components.get(MaxHP, 0)}",
         empty_color=color.bar_empty,
         full_color=color.bar_filled,
     )
