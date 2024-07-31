@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import tcod.ecs
 
-from game.components import HP, Defense, Graphic, Name, Power
+from game.components import AI, HP, Defense, Graphic, Name, Power
 from game.messages import add_message
 from game.tags import IsPlayer
 
@@ -31,4 +31,5 @@ def die(entity: tcod.ecs.Entity) -> None:
     )
     entity.components[Graphic] = Graphic(ord("%"), (191, 0, 0))
     entity.components[Name] = f"remains of {entity.components[Name]}"
+    entity.components.pop(AI)
     del entity.relation_tag[tcod.ecs.IsA]

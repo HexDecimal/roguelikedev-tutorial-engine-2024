@@ -11,7 +11,7 @@ from game.action import Action, Impossible, Success
 from game.actor_tools import update_fov
 from game.components import AI, HP
 from game.state import State  # noqa: TCH001
-from game.tags import IsActor, IsIn, IsPlayer
+from game.tags import IsIn, IsPlayer
 
 logger = logging.getLogger(__name__)
 
@@ -34,5 +34,5 @@ def do_player_action(state: State, player: tcod.ecs.Entity, action: Action) -> S
 
 def handle_enemy_turns(world: tcod.ecs.Registry, map_: tcod.ecs.Entity) -> None:
     """Perform enemy turns."""
-    for enemy in world.Q.all_of(components=[AI], tags=[IsActor], relations=[(IsIn, map_)]):
+    for enemy in world.Q.all_of(components=[AI], relations=[(IsIn, map_)]):
         enemy.components[AI](enemy)
