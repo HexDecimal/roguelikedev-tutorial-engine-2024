@@ -15,6 +15,7 @@ from numpy.typing import NDArray  # noqa: TCH002
 
 import game.map_tools
 from game.actions import HostileAI
+from game.actor_tools import spawn_actor
 from game.components import AI, Graphic, Position, Tiles
 from game.tiles import TILE_NAMES
 
@@ -179,8 +180,7 @@ def generate_dungeon(
             range(rng.randint(0, max_monsters_per_room)), room.iter_random_spaces(rng, map_), strict=False
         ):
             monster_kind = world["orc"] if rng.random() < 0.8 else world["troll"]  # noqa: PLR2004
-            new_monster = monster_kind.instantiate()
-            new_monster.components[Position] = pos
+            new_monster = spawn_actor(monster_kind, pos)
             new_monster.components[AI] = HostileAI()
 
     return map_

@@ -10,7 +10,7 @@ import tcod.ecs
 import tcod.map
 
 from game.components import Graphic, MemoryTiles, Name, Position, Tiles, VisibleTiles
-from game.tags import IsGhost, IsIn, IsPlayer
+from game.tags import IsActor, IsGhost, IsIn, IsPlayer
 from game.tiles import TILES
 
 
@@ -47,3 +47,11 @@ def update_fov(actor: tcod.ecs.Entity) -> None:
         ghost.components[Graphic] = entity.components[Graphic]
         if Name in entity.components:
             ghost.components[Name] = entity.components[Name]
+
+
+def spawn_actor(template: tcod.ecs.Entity, position: Position) -> tcod.ecs.Entity:
+    """Spawn a new actor at a location and return the new entity."""
+    actor = template.instantiate()
+    actor.tags.add(IsActor)
+    actor.components[Position] = position
+    return actor

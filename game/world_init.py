@@ -10,7 +10,7 @@ import game.actor_tools
 import game.procgen
 from game.components import HP, Defense, Graphic, MaxHP, Name, Position, Power
 from game.messages import MessageLog, add_message
-from game.tags import IsActor, IsPlayer
+from game.tags import IsPlayer
 
 
 def new_world() -> tcod.ecs.Registry:
@@ -26,8 +26,7 @@ def new_world() -> tcod.ecs.Registry:
 
     (start,) = world.Q.all_of(tags=["UpStairs"])
 
-    player = world["player"].instantiate()
-    player.components[Position] = start.components[Position]
+    player = game.actor_tools.spawn_actor(world["player"], start.components[Position])
     player.tags.add(IsPlayer)
     game.actor_tools.update_fov(player)
 
@@ -46,7 +45,6 @@ def init_new_creature(
 ) -> None:
     """Setup a new creature type."""
     race = world[name]
-    race.tags.add(IsActor)
     race.components[Name] = name
     race.components[Graphic] = Graphic(ch, fg)
     race.components[HP] = race.components[MaxHP] = hp

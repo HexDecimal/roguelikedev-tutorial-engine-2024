@@ -1,4 +1,4 @@
 attrs
 tcod
 tcod-camera
-tcod-ecs>=5.2.0
+tcod-ecs>=5.2.2
