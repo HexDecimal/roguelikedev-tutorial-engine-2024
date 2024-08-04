@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from typing import Any, Self
 
 import attrs
 import tcod.console
@@ -12,8 +13,9 @@ from tcod.ecs import Entity  # noqa: TCH002
 from tcod.event import KeySym
 
 import g
+from game.action import Action  # noqa: TCH001
 from game.action_tools import do_player_action
-from game.actions import ApplyItem, Bump, PickupItem
+from game.actions import ApplyItem, Bump, DropItem, PickupItem
 from game.components import Name
 from game.constants import DIRECTION_KEYS, INVENTORY_KEYS
 from game.rendering import main_render
@@ -34,19 +36,9 @@ class ExampleState(State):
             case tcod.event.KeyDown(sym=KeySym.g):
                 return do_player_action(self, player, PickupItem())
             case tcod.event.KeyDown(sym=KeySym.i):
-                return ItemSelect(
-                    title="Select an item to use",
-                    items=list(g.world.Q.all_of(tags=[IsItem], relations=[(IsIn, player)])),
-                    pick_callback=lambda item: do_player_action(self, player, ApplyItem(item)),
-                    cancel_callback=lambda: self,
-                )
+                return ItemSelect.player_verb(self, player, "use", ApplyItem)
             case tcod.event.KeyDown(sym=KeySym.d):
-                return ItemSelect(
-                    title="Select an item to drop",
-                    items=list(g.world.Q.all_of(tags=[IsItem], relations=[(IsIn, player)])),
-                    pick_callback=lambda item: do_player_action(self, player, ApplyItem(item)),
-                    cancel_callback=lambda: self,
-                )
+                return ItemSelect.player_verb(self, player, "drop", DropItem)
         return self
 
     def on_draw(self, console: tcod.console.Console) -> None:
@@ -80,6 +72,16 @@ class ItemSelect(State):
     pick_callback: Callable[[Entity], State]
     cancel_callback: Callable[[], State] | None = None
 
+    @classmethod
+    def player_verb(cls, state: State, player: Entity, verb: str, action: Callable[[Entity], Action]) -> Self:
+        """Initialize a common player verb on item menu."""
+        return cls(
+            title=f"Select an item to {verb}",
+            items=list(g.world.Q.all_of(tags=[IsItem], relations=[(IsIn, player)])),
+            pick_callback=lambda item: do_player_action(state, player, action(item)),
+            cancel_callback=lambda: state,
+        )
+
     def on_event(self, event: tcod.event.Event) -> State:
         """Handle item selection."""
         match event:
@@ -95,17 +97,28 @@ class ItemSelect(State):
         """Render the item menu."""
         main_render(g.world, console)
 
-        x = 0
-        y = 0
+        x = 5
+        y = 5
         width = 30
         height = 2 + len(self.items)
 
         console.draw_frame(x=x, y=y, width=width, height=height, fg=(255, 255, 255), bg=(0, 0, 0))
-        console.print_box(
-            x=x, y=y, width=width, height=1, string=self.title, fg=(255, 255, 255), alignment=tcod.constants.CENTER
-        )
+        if self.title:
+            console.print_box(
+                x=x,
+                y=y,
+                width=width,
+                height=1,
+                string=f" {self.title} ",
+                fg=(0, 0, 0),
+                bg=(255, 255, 255),
+                alignment=tcod.constants.CENTER,
+            )
         for i, (item, key_char) in enumerate(zip(self.items, INVENTORY_KEYS, strict=False), start=1):
             console.print(
-                x=x + 1, y=y + i, string=f"""{key_char}: {item.components.get(Name, "???")}""", fg=(255, 255, 255)
+                x=x + 1, y=y + i, string=f"""{key_char}) {item.components.get(Name, "???")}""", fg=(255, 255, 255)
             )
-        console.print_box(x=x + 1, y=y + height - 1, width=width, height=1, string="Key to select", fg=(255, 255, 255))
+        footer_rect: dict[str, Any] = {"x": x + 1, "y": y + height - 1, "width": width - 2, "height": 1}
+        console.print_box(**footer_rect, string="[a-z] select", fg=(255, 255, 255))
+        if self.cancel_callback is not None:
+            console.print_box(**footer_rect, string="[esc] cancel", fg=(255, 255, 255), alignment=tcod.constants.RIGHT)

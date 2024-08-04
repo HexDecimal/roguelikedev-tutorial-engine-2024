@@ -187,8 +187,8 @@ class DropItem:
     def __call__(self, actor: tcod.ecs.Entity) -> ActionResult:
         """Drop item from inventory."""
         item = self.item
-        assert item.relation_tags[IsIn] is actor
+        assert item.relation_tag[IsIn] is actor
         add_message(actor.registry, f"""You drop the {item.components.get(Name, "?")}!""")
-        del item.relation_tags[IsIn]
+        del item.relation_tag[IsIn]
         item.components[Position] = actor.components[Position]
         return Success()
