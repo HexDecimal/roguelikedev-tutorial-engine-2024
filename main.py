@@ -24,7 +24,7 @@ CONSOLE_SIZE = 80, 50
 def main() -> None:
     """Main entry point."""
     logging.basicConfig(level="DEBUG")
-    tileset = tcod.tileset.load_bdf("assets/cozette.bdf")
+    tileset = tcod.tileset.load_tilesheet("assets/Alloy_curses_12x12.png", 16, 16, tcod.tileset.CHARMAP_CP437)
     g.console = tcod.console.Console(*CONSOLE_SIZE)
 
     g.world = game.world_init.new_world()
