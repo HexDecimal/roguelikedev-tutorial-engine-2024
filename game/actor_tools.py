@@ -37,7 +37,7 @@ def update_fov(actor: tcod.ecs.Entity) -> None:
         if all_visible[entity.components[Position].ij]:
             entity.clear()
     # Add ghosts for entities going out of view
-    for entity in world.Q.all_of(components=[Position], relations=[(IsIn, map_)]).none_of(tags=[IsGhost]):
+    for entity in world.Q.all_of(components=[Position, Graphic], relations=[(IsIn, map_)]).none_of(tags=[IsGhost]):
         pos = entity.components[Position]
         if not now_invisible[pos.ij]:
             continue

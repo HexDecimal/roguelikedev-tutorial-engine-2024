@@ -10,5 +10,7 @@ IsGhost: Final = "IsGhost"
 
 IsActor: Final = "IsActor"
 
+IsItem: Final = "IsItem"
+
 IsIn: Final = "IsIn"
 """Entity is-in relation."""

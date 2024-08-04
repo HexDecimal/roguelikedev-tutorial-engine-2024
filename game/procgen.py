@@ -17,6 +17,7 @@ import game.map_tools
 from game.actions import HostileAI
 from game.actor_tools import spawn_actor
 from game.components import AI, Graphic, Position, Tiles
+from game.item_tools import spawn_item
 from game.tiles import TILE_NAMES
 
 
@@ -119,6 +120,7 @@ def generate_dungeon(
     room_max_size: int = 10,
     max_iterations: int = 100_000,
     max_monsters_per_room: int = 2,
+    max_items_per_room: int = 2,
 ) -> tcod.ecs.Entity:
     """Return a new generated map."""
     map_height, map_width = shape
@@ -182,5 +184,8 @@ def generate_dungeon(
             monster_kind = world["orc"] if rng.random() < 0.8 else world["troll"]  # noqa: PLR2004
             new_monster = spawn_actor(monster_kind, pos)
             new_monster.components[AI] = HostileAI()
+
+        for _, pos in zip(range(max_items_per_room), room.iter_random_spaces(rng, map_), strict=False):
+            spawn_item(world["health_potion"], pos)
 
     return map_

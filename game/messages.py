@@ -36,7 +36,7 @@ MessageLog: Final = list[Message]
 """Message log component."""
 
 
-def add_message(world: tcod.ecs.Registry, text: str, fg: str) -> None:
+def add_message(world: tcod.ecs.Registry, text: str, fg: str = "white") -> None:
     """Append a message to the log, stacking is necessary."""
     assert hasattr(color, fg), fg
     log = world[None].components[MessageLog]

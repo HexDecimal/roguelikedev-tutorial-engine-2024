@@ -20,6 +20,7 @@ def new_world() -> tcod.ecs.Registry:
     world[None].components[MessageLog] = MessageLog()
 
     init_creatures(world)
+    init_items(world)
 
     map_ = game.procgen.generate_dungeon(world=world, shape=(45, 80))
     world[None].relation_tag["ActiveMap"] = map_
@@ -57,3 +58,10 @@ def init_creatures(world: tcod.ecs.Registry) -> None:
     init_new_creature(world, name="player", ch=ord("@"), fg=(255, 255, 255), hp=30, power=5, defense=2)
     init_new_creature(world, name="orc", ch=ord("o"), fg=(63, 127, 63), hp=10, power=3, defense=0)
     init_new_creature(world, name="troll", ch=ord("T"), fg=(0, 127, 0), hp=16, power=4, defense=1)
+
+
+def init_items(world: tcod.ecs.Registry) -> None:
+    """Initialize item database."""
+    health_potion = world["health_potion"]
+    health_potion.components[Name] = "Health Potion"
+    health_potion.components[Graphic] = Graphic(ord("!"), (127, 0, 255))

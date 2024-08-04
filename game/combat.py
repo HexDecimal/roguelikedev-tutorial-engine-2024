@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import tcod.ecs  # noqa: TCH002
 
-from game.components import AI, HP, Defense, Graphic, Name, Power
+from game.components import AI, HP, Defense, Graphic, MaxHP, Name, Power
 from game.messages import add_message
 from game.tags import IsActor, IsPlayer
 
@@ -33,3 +33,11 @@ def die(entity: tcod.ecs.Entity) -> None:
     entity.components[Name] = f"remains of {entity.components[Name]}"
     entity.components.pop(AI, None)
     entity.tags.remove(IsActor)
+
+
+def heal(entity: tcod.ecs.Entity, amount: int) -> int:
+    """Recover the HP of `entity` by `amount`. Return the actual amount restored."""
+    old_hp = entity.components[HP]
+    new_hp = min(old_hp + amount, entity.components[MaxHP])
+    entity.components[HP] = min(entity.components[HP] + amount, entity.components[MaxHP])
+    return new_hp - old_hp

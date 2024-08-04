@@ -11,7 +11,7 @@ from game.action import ActionResult, Impossible, Success
 from game.combat import apply_damage, melee_damage
 from game.components import MapShape, Name, Position, Tiles, VisibleTiles
 from game.messages import add_message
-from game.tags import IsActor, IsIn, IsPlayer
+from game.tags import IsActor, IsIn, IsItem, IsPlayer
 from game.tiles import TILES
 from game.travel import path_to
 
@@ -136,3 +136,21 @@ class HostileAI:
         if self.path:
             return self.path(actor)
         return wait(actor)
+
+
+@attrs.define
+class PickupItem:
+    """Pickup an item and add it to the inventory, if there is room for it."""
+
+    def __call__(self, actor: tcod.ecs.Entity) -> ActionResult:
+        """Check for and pickup item."""
+        items_here = actor.registry.Q.all_of(tags=[IsItem, actor.components[Position]]).get_entities()
+        if not items_here:
+            return Impossible("There is nothing here to pick up.")
+        item = next(iter(items_here))
+
+        del item.components[Position]
+        item.relation_tag[IsIn] = actor
+
+        add_message(actor.registry, f"""You picked up the {item.components.get(Name, "?")}!""")
+        return Success()
