@@ -10,6 +10,8 @@ import tcod.ecs  # noqa: TCH002
 from game.action import ActionResult, Impossible, Success
 from game.combat import apply_damage, melee_damage
 from game.components import MapShape, Name, Position, Tiles, VisibleTiles
+from game.constants import INVENTORY_KEYS
+from game.effect import Effect
 from game.messages import add_message
 from game.tags import IsActor, IsIn, IsItem, IsPlayer
 from game.tiles import TILES
@@ -31,8 +33,9 @@ class Move:
         map_shape = new_position.map.components[MapShape]
         if not (0 <= new_position.x < map_shape.width and 0 <= new_position.y < map_shape.height):
             return Impossible("Out of bounds.")
-        if TILES["walk_cost"][new_position.map.components[Tiles][new_position.ij]] == 0:
-            return Impossible("Blocked by wall.")
+        tile_index = new_position.map.components[Tiles][new_position.ij]
+        if TILES["walk_cost"][tile_index] == 0:
+            return Impossible(f"""Blocked by {TILES["name"][tile_index]}.""")
         if entity.world.Q.all_of(tags=[IsActor, new_position]):
             return Impossible("Something is in the way.")  # Blocked by actor
 
@@ -149,8 +152,43 @@ class PickupItem:
             return Impossible("There is nothing here to pick up.")
         item = next(iter(items_here))
 
+        if len(actor.registry.Q.all_of(tags=[IsItem], relations=[(IsIn, actor)]).get_entities()) >= len(INVENTORY_KEYS):
+            return Impossible("Inventory is full.")
+
         del item.components[Position]
         item.relation_tag[IsIn] = actor
 
         add_message(actor.registry, f"""You picked up the {item.components.get(Name, "?")}!""")
+        return Success()
+
+
+@attrs.define
+class ApplyItem:
+    """Use an item directly."""
+
+    item: tcod.ecs.Entity
+
+    def __call__(self, actor: tcod.ecs.Entity) -> ActionResult:
+        """Check for and pickup item."""
+        item = self.item
+        add_message(actor.registry, f"""You consume the {item.components.get(Name, "?")}!""")
+        if Effect in item.components:
+            item.components[Effect].affect(actor)
+        item.clear()
+        return Success()
+
+
+@attrs.define
+class DropItem:
+    """Place an item on the floor."""
+
+    item: tcod.ecs.Entity
+
+    def __call__(self, actor: tcod.ecs.Entity) -> ActionResult:
+        """Drop item from inventory."""
+        item = self.item
+        assert item.relation_tags[IsIn] is actor
+        add_message(actor.registry, f"""You drop the {item.components.get(Name, "?")}!""")
+        del item.relation_tags[IsIn]
+        item.components[Position] = actor.components[Position]
         return Success()

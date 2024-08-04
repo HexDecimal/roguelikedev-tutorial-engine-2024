@@ -33,6 +33,7 @@ ignore = [
     "S311",    # suspicious-non-cryptographic-random-usage
     "T10",     # flake8-debugger
     "T20",     # flake8-print
+    "TCH003",  # typing-only-standard-library-import
 ]
 
 [tool.ruff.lint.isort]

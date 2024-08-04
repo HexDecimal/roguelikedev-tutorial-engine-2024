@@ -9,6 +9,8 @@ import tcod.ecs
 import game.actor_tools
 import game.procgen
 from game.components import HP, Defense, Graphic, MaxHP, Name, Position, Power
+from game.effect import Effect
+from game.effects import Healing
 from game.messages import MessageLog, add_message
 from game.tags import IsPlayer
 
@@ -65,3 +67,4 @@ def init_items(world: tcod.ecs.Registry) -> None:
     health_potion = world["health_potion"]
     health_potion.components[Name] = "Health Potion"
     health_potion.components[Graphic] = Graphic(ord("!"), (127, 0, 255))
+    health_potion.components[Effect] = Healing(4)

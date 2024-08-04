@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Reversible  # noqa: TCH003
+from collections.abc import Reversible
 
 import numpy as np
 import tcod.camera

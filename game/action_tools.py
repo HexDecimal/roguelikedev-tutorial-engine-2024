@@ -10,6 +10,7 @@ import game.states
 from game.action import Action, Impossible, Success
 from game.actor_tools import update_fov
 from game.components import AI, HP
+from game.messages import add_message
 from game.state import State  # noqa: TCH001
 from game.tags import IsIn, IsPlayer
 
@@ -24,8 +25,8 @@ def do_player_action(state: State, player: tcod.ecs.Entity, action: Action) -> S
     match result:
         case Success():
             handle_enemy_turns(player.registry, player.relation_tag[IsIn])
-        case Impossible():
-            logger.debug("%r", result)
+        case Impossible(reason=reason):
+            add_message(player.registry, reason, fg="impossible")
 
     if player.components[HP] <= 0:
         return game.states.GameOver()

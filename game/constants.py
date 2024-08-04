@@ -38,3 +38,5 @@ DIRECTION_KEYS: Final = {
     KeySym.n: (1, 1),
     KeySym.PERIOD: (0, 0),
 }
+
+INVENTORY_KEYS = "abcdefghijklmnopqrstuvwxyz"

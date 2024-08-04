@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import logging
+
 import tcod.ecs  # noqa: TCH002
 
 from game.components import AI, HP, Defense, Graphic, MaxHP, Name, Power
 from game.messages import add_message
 from game.tags import IsActor, IsPlayer
+
+logger = logging.getLogger(__name__)
 
 
 def melee_damage(entity: tcod.ecs.Entity, target: tcod.ecs.Entity) -> int:
@@ -37,6 +41,9 @@ def die(entity: tcod.ecs.Entity) -> None:
 
 def heal(entity: tcod.ecs.Entity, amount: int) -> int:
     """Recover the HP of `entity` by `amount`. Return the actual amount restored."""
+    if not (entity.components.keys() >= {HP, MaxHP}):
+        logger.info("%r has no HP/MaxHP component", entity)
+        return 0
     old_hp = entity.components[HP]
     new_hp = min(old_hp + amount, entity.components[MaxHP])
     entity.components[HP] = min(entity.components[HP] + amount, entity.components[MaxHP])

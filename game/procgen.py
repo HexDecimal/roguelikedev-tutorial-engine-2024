@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import itertools
-from collections.abc import Iterator  # noqa: TCH003
+from collections.abc import Iterator
 from random import Random
 from typing import Final, Self
 
