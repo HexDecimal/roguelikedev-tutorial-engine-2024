@@ -8,6 +8,7 @@ import numpy as np
 import tcod.camera
 import tcod.console
 import tcod.ecs
+from numpy.typing import NDArray  # noqa: TCH002
 
 import g
 from game.components import HP, Graphic, MapShape, MaxHP, MemoryTiles, Name, Position, Tiles, VisibleTiles
@@ -61,7 +62,7 @@ def render_messages(world: tcod.ecs.Registry, width: int, height: int) -> tcod.c
 def render_names_at_position(console: tcod.console.Console, x: int, y: int, pos: Position) -> None:
     """Render names of entities at `pos` to `console`."""
     map_height, map_width = pos.map.components[MapShape]
-    if not (0 <= x < map_width and 0 <= y < map_height):
+    if not (0 <= pos.x < map_width and 0 <= pos.y < map_height):
         return
     is_visible = pos.map.components[VisibleTiles].item(pos.ij)
     known_entities = [
@@ -73,7 +74,9 @@ def render_names_at_position(console: tcod.console.Console, x: int, y: int, pos:
     console.print(x=x, y=y, string=names, fg=color.white)
 
 
-def main_render(world: tcod.ecs.Registry, console: tcod.console.Console) -> None:
+def main_render(
+    world: tcod.ecs.Registry, console: tcod.console.Console, *, highlight: NDArray[np.bool] | None = None
+) -> None:
     """Main rendering code."""
     (player,) = world.Q.all_of(tags=[IsPlayer])
     map_ = player.relation_tag[IsIn]
@@ -107,6 +110,8 @@ def main_render(world: tcod.ecs.Registry, console: tcod.console.Console) -> None
     console.rgb["bg"][console_slices][not_visible] //= 2
 
     cursor_pos = world["cursor"].components.get(Position)
+    if highlight is not None:
+        console.rgb[["fg", "bg"]][console_slices][highlight[map_slices]] = ((0, 0, 0), (0xC0, 0xC0, 0xC0))
     if (
         cursor_pos is not None
         and 0 <= cursor_pos.x < console_slices[1].stop

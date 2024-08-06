@@ -5,12 +5,21 @@ from __future__ import annotations
 from typing import Protocol, TypeAlias
 
 import attrs
-import tcod.ecs  # noqa: TCH002
+from tcod.ecs import Entity  # noqa: TCH002
+
+from game.state import State  # noqa: TCH001
 
 
 @attrs.define
 class Success:
     """Action was successful."""
+
+
+@attrs.define
+class Poll:
+    """Action needs more input from the user."""
+
+    state: State
 
 
 @attrs.define
@@ -20,11 +29,11 @@ class Impossible:
     reason: str
 
 
-ActionResult: TypeAlias = Success | Impossible  # noqa: UP040
+ActionResult: TypeAlias = Success | Poll | Impossible  # noqa: UP040
 
 
 class Action(Protocol):
     """Action protocol."""
 
-    def __call__(self, actor: tcod.ecs.Entity, /) -> ActionResult:
+    def __call__(self, actor: Entity, /) -> ActionResult:
         """Perform action."""

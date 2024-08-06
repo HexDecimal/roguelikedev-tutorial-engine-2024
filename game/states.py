@@ -6,9 +6,11 @@ from collections.abc import Callable
 from typing import Any, Self
 
 import attrs
+import numpy as np  # noqa: TCH002
 import tcod.console
 import tcod.constants
 import tcod.event
+from numpy.typing import NDArray  # noqa: TCH002
 from tcod.ecs import Entity  # noqa: TCH002
 from tcod.event import KeySym
 
@@ -32,13 +34,13 @@ class InGame(State):
         (player,) = g.world.Q.all_of(tags=[IsPlayer])
         match event:
             case tcod.event.KeyDown(sym=sym) if sym in DIRECTION_KEYS:
-                return do_player_action(self, player, Bump(DIRECTION_KEYS[sym]))
+                return do_player_action(player, Bump(DIRECTION_KEYS[sym]))
             case tcod.event.KeyDown(sym=KeySym.g):
-                return do_player_action(self, player, PickupItem())
+                return do_player_action(player, PickupItem())
             case tcod.event.KeyDown(sym=KeySym.i):
-                return ItemSelect.player_verb(self, player, "use", ApplyItem)
+                return ItemSelect.player_verb(player, "use", ApplyItem)
             case tcod.event.KeyDown(sym=KeySym.d):
-                return ItemSelect.player_verb(self, player, "drop", DropItem)
+                return ItemSelect.player_verb(player, "drop", DropItem)
             case tcod.event.KeyDown(sym=KeySym.SLASH):
                 return PositionSelect.init_look()
         return self
@@ -75,13 +77,13 @@ class ItemSelect(State):
     cancel_callback: Callable[[], State] | None = None
 
     @classmethod
-    def player_verb(cls, state: State, player: Entity, verb: str, action: Callable[[Entity], Action]) -> Self:
+    def player_verb(cls, player: Entity, verb: str, action: Callable[[Entity], Action]) -> Self:
         """Initialize a common player verb on item menu."""
         return cls(
             title=f"Select an item to {verb}",
             items=list(g.world.Q.all_of(tags=[IsItem], relations=[(IsIn, player)])),
-            pick_callback=lambda item: do_player_action(state, player, action(item)),
-            cancel_callback=lambda: state,
+            pick_callback=lambda item: do_player_action(player, action(item)),
+            cancel_callback=InGame,
         )
 
     def on_event(self, event: tcod.event.Event) -> State:
@@ -131,7 +133,8 @@ class PositionSelect:
     """Look handler and position pick tool."""
 
     pick_callback: Callable[[Position], State]
-    cancel_callback: Callable[[], State] | None = None
+    cancel_callback: Callable[[], State] | None = InGame
+    highlighter: Callable[[Position], NDArray[np.bool]] | None = None
 
     @classmethod
     def init_look(cls) -> Self:
@@ -166,4 +169,5 @@ class PositionSelect:
 
     def on_draw(self, console: tcod.console.Console) -> None:
         """Render the main screen."""
-        main_render(g.world, console)
+        highlight = self.highlighter(g.world["cursor"].components[Position]) if self.highlighter is not None else None
+        main_render(g.world, console, highlight=highlight)

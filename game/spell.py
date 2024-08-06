@@ -2,15 +2,35 @@
 
 from __future__ import annotations
 
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
+import numpy as np  # noqa: TCH002
+from numpy.typing import NDArray  # noqa: TCH002
 from tcod.ecs import Entity  # noqa: TCH002
 
 from game.action import ActionResult  # noqa: TCH001
+from game.components import Position  # noqa: TCH001
 
 
-class Spell(Protocol):
+@runtime_checkable
+class EntitySpell(Protocol):
     """Abstract spell."""
 
     def cast_at_entity(self, castor: Entity, item: Entity | None, target: Entity, /) -> ActionResult:
         """Cast at an entity."""
+
+
+@runtime_checkable
+class PositionSpell(Protocol):
+    """Abstract spell."""
+
+    def cast_at_position(self, castor: Entity, item: Entity | None, target: Position, /) -> ActionResult:
+        """Cast at a tile position."""
+
+
+@runtime_checkable
+class AreaOfEffect(Protocol):
+    """Spell with an area of effect."""
+
+    def get_affected_area(self, target: Position) -> NDArray[np.bool]:
+        """Return the affect area for this spell."""

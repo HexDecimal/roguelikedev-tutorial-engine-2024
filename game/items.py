@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+import functools
+
 import attrs
 from tcod.ecs import Entity  # noqa: TCH002
 
-from game.action import ActionResult, Impossible, Success
+from game.action import ActionResult, Impossible, Poll, Success
+from game.action_tools import do_player_action
 from game.components import Name, Position, VisibleTiles
 from game.effect import Effect
 from game.messages import add_message
-from game.spell import Spell
+from game.spell import AreaOfEffect, EntitySpell, PositionSpell
+from game.states import PositionSelect
 from game.tags import IsActor, IsIn
 
 
@@ -28,7 +32,7 @@ class Potion:
 
 @attrs.define
 class RandomTargetScroll:
-    """One use scroll targeting the nearest enemy."""
+    """One-use scroll targeting the nearest enemy."""
 
     maximum_range: int
 
@@ -48,7 +52,32 @@ class RandomTargetScroll:
         if actor_pos.distance_squared(target.components[Position]) > self.maximum_range**2:
             return Impossible("No target in range.")
 
-        result = item.components[Spell].cast_at_entity(actor, item, target)
+        result = item.components[EntitySpell].cast_at_entity(actor, item, target)
+        if result:
+            item.clear()
+        return result
+
+
+@attrs.define
+class TargetScroll:
+    """One-use scroll with a manual target."""
+
+    def on_apply(self, actor: Entity, item: Entity, target: Position | None = None) -> ActionResult:
+        """Cast items spell at nearest target in range."""
+        actor.registry["cursor"].components[Position] = actor.components[Position]
+        spell = item.components[PositionSpell]
+        highlighter = (
+            functools.partial(spell.get_affected_area, use_memory=True) if isinstance(spell, AreaOfEffect) else None
+        )
+        if target is None:
+            return Poll(
+                PositionSelect(
+                    pick_callback=lambda pos: do_player_action(actor, lambda actor: self.on_apply(actor, item, pos)),
+                    highlighter=highlighter,
+                )
+            )
+
+        result = item.components[PositionSpell].cast_at_position(actor, item, target)
         if result:
             item.clear()
         return result

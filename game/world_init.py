@@ -12,10 +12,10 @@ from game.components import HP, Defense, Graphic, MaxHP, Name, Position, Power
 from game.effect import Effect
 from game.effects import Healing
 from game.item import ApplyAction
-from game.items import Potion, RandomTargetScroll
+from game.items import Potion, RandomTargetScroll, TargetScroll
 from game.messages import MessageLog, add_message
-from game.spell import Spell
-from game.spells import LightningBolt
+from game.spell import EntitySpell, PositionSpell
+from game.spells import Fireball, LightningBolt
 from game.tags import IsPlayer
 
 
@@ -78,4 +78,10 @@ def init_items(world: tcod.ecs.Registry) -> None:
     lightning_scroll.components[Name] = "Lightning Scroll"
     lightning_scroll.components[Graphic] = Graphic(ord("~"), (255, 255, 0))
     lightning_scroll.components[ApplyAction] = RandomTargetScroll(maximum_range=5)
-    lightning_scroll.components[Spell] = LightningBolt(damage=20)
+    lightning_scroll.components[EntitySpell] = LightningBolt(damage=20)
+
+    fireball_scroll = world["fireball_scroll"]
+    fireball_scroll.components[Name] = "Fireball Scroll"
+    fireball_scroll.components[Graphic] = Graphic(ord("~"), (255, 0, 0))
+    fireball_scroll.components[ApplyAction] = TargetScroll()
+    fireball_scroll.components[PositionSpell] = Fireball(damage=12, radius=3)

@@ -7,7 +7,7 @@ import logging
 import tcod.ecs  # noqa: TCH002
 
 import game.states
-from game.action import Action, Impossible, Success
+from game.action import Action, Impossible, Poll, Success
 from game.actor_tools import update_fov
 from game.components import AI, HP
 from game.messages import add_message
@@ -17,7 +17,7 @@ from game.tags import IsIn, IsPlayer
 logger = logging.getLogger(__name__)
 
 
-def do_player_action(state: State, player: tcod.ecs.Entity, action: Action) -> State:
+def do_player_action(player: tcod.ecs.Entity, action: Action) -> State:
     """Perform an action on the player."""
     assert IsPlayer in player.tags
     result = action(player)
@@ -25,12 +25,14 @@ def do_player_action(state: State, player: tcod.ecs.Entity, action: Action) -> S
     match result:
         case Success():
             handle_enemy_turns(player.registry, player.relation_tag[IsIn])
+        case Poll(state=state):
+            return state
         case Impossible(reason=reason):
             add_message(player.registry, reason, fg="impossible")
 
     if player.components[HP] <= 0:
         return game.states.GameOver()
-    return state
+    return game.states.InGame()
 
 
 def handle_enemy_turns(world: tcod.ecs.Registry, map_: tcod.ecs.Entity) -> None:
