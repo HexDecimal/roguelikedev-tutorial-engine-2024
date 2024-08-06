@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Final, NamedTuple
+from typing import Final, NamedTuple, Self
 
 import attrs
 import numpy as np
@@ -25,6 +25,10 @@ class Position:
     def __add__(self, other: tuple[int, int]) -> Position:
         """Return a Position offset by `other`."""
         return self.__class__(self.x + other[0], self.y + other[1], self.map)
+
+    def replace(self, x: int | None = None, y: int | None = None, map: tcod.ecs.Entity | None = None) -> Self:  # noqa: A002
+        """Return a copy with attributes replaced."""
+        return self.__class__(self.x if x is None else x, self.y if y is None else y, self.map if map is None else map)
 
     @property
     def ij(self) -> tuple[int, int]:

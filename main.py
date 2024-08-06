@@ -29,7 +29,7 @@ def main() -> None:
 
     g.world = game.world_init.new_world()
 
-    g.state = game.states.ExampleState()
+    g.state = game.states.InGame()
 
     with tcod.context.new(console=g.console, tileset=tileset, title=TITLE) as g.context:
         while True:

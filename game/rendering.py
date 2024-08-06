@@ -106,6 +106,14 @@ def main_render(world: tcod.ecs.Registry, console: tcod.console.Console) -> None
     console.rgb["fg"][console_slices][not_visible] //= 2
     console.rgb["bg"][console_slices][not_visible] //= 2
 
+    cursor_pos = world["cursor"].components.get(Position)
+    if (
+        cursor_pos is not None
+        and 0 <= cursor_pos.x < console_slices[1].stop
+        and 0 <= cursor_pos.y < console_slices[0].stop
+    ):
+        console.rgb[["fg", "bg"]][console_slices][cursor_pos.ij] = ((0, 0, 0), (255, 255, 255))
+
     render_bar(
         console,
         x=0,

@@ -16,7 +16,7 @@ import g
 from game.action import Action  # noqa: TCH001
 from game.action_tools import do_player_action
 from game.actions import ApplyItem, Bump, DropItem, PickupItem
-from game.components import Name
+from game.components import Name, Position
 from game.constants import DIRECTION_KEYS, INVENTORY_KEYS
 from game.rendering import main_render
 from game.state import State
@@ -24,8 +24,8 @@ from game.tags import IsIn, IsItem, IsPlayer
 
 
 @attrs.define
-class ExampleState(State):
-    """Example game state."""
+class InGame(State):
+    """In-game main player control state."""
 
     def on_event(self, event: tcod.event.Event) -> State:
         """Handle basic events and movement."""
@@ -39,6 +39,8 @@ class ExampleState(State):
                 return ItemSelect.player_verb(self, player, "use", ApplyItem)
             case tcod.event.KeyDown(sym=KeySym.d):
                 return ItemSelect.player_verb(self, player, "drop", DropItem)
+            case tcod.event.KeyDown(sym=KeySym.SLASH):
+                return PositionSelect.init_look()
         return self
 
     def on_draw(self, console: tcod.console.Console) -> None:
@@ -122,3 +124,46 @@ class ItemSelect(State):
         console.print_box(**footer_rect, string="[a-z] select", fg=(255, 255, 255))
         if self.cancel_callback is not None:
             console.print_box(**footer_rect, string="[esc] cancel", fg=(255, 255, 255), alignment=tcod.constants.RIGHT)
+
+
+@attrs.define(kw_only=True)
+class PositionSelect:
+    """Look handler and position pick tool."""
+
+    pick_callback: Callable[[Position], State]
+    cancel_callback: Callable[[], State] | None = None
+
+    @classmethod
+    def init_look(cls) -> Self:
+        """Initialize a basic look state."""
+        (player,) = g.world.Q.all_of(tags=[IsPlayer])
+        g.world["cursor"].components[Position] = player.components[Position]
+        return cls(pick_callback=lambda _: InGame(), cancel_callback=InGame)
+
+    def on_event(self, event: tcod.event.Event) -> State:
+        """Handle cursor movement and selection."""
+        match event:
+            case tcod.event.KeyDown(sym=sym) if sym in DIRECTION_KEYS:
+                g.world["cursor"].components[Position] += DIRECTION_KEYS[sym]
+            case (
+                tcod.event.KeyDown(sym=KeySym.RETURN)
+                | tcod.event.KeyDown(sym=KeySym.KP_ENTER)
+                | tcod.event.MouseButtonDown(button=tcod.event.MouseButton.LEFT)
+            ):
+                try:
+                    return self.pick_callback(g.world["cursor"].components[Position])
+                finally:
+                    g.world["cursor"].clear()
+            case tcod.event.MouseMotion(position=position):
+                g.world["cursor"].components[Position] = g.world["cursor"].components[Position].replace(*position)
+            case (
+                tcod.event.KeyDown(sym=KeySym.ESCAPE)
+                | tcod.event.MouseButtonDown(button=tcod.event.MouseButton.RIGHT)
+            ) if self.cancel_callback is not None:
+                g.world["cursor"].clear()
+                return self.cancel_callback()
+        return self
+
+    def on_draw(self, console: tcod.console.Console) -> None:
+        """Render the main screen."""
+        main_render(g.world, console)

@@ -12,5 +12,5 @@ from game.action import ActionResult  # noqa: TCH001
 class ApplyAction(Protocol):
     """Action effect on item apply."""
 
-    def on_apply(self, actor: Entity, item: Entity) -> ActionResult:
+    def on_apply(self, actor: Entity, item: Entity, /) -> ActionResult:
         """On apply behavior."""
