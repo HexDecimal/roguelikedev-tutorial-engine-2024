@@ -11,7 +11,7 @@ from tcod.ecs import Entity  # noqa: TCH002
 
 from game.action import ActionResult, Success
 from game.combat import apply_damage
-from game.components import HP, MapShape, MemoryTiles, Name, Position, Tiles
+from game.components import HP, MapShape, MemoryTiles, Name, Position, Tiles, VisibleTiles
 from game.messages import add_message
 from game.tags import IsActor, IsIn
 from game.tiles import TILES
@@ -53,10 +53,12 @@ class SphereAOE:
 
     radius: int
 
-    def get_affected_area(self, target: Position, *, use_memory: bool = False) -> NDArray[np.bool]:
+    def get_affected_area(self, target: Position, *, player_pov: bool = False) -> NDArray[np.bool]:
         """Return the affected area as a boolean array."""
+        if not target.map.components[VisibleTiles][target.ij]:
+            return np.zeros(target.map.components[MapShape], dtype=bool)
         return tcod.map.compute_fov(
-            TILES["transparent"][target.map.components[Tiles if not use_memory else MemoryTiles]],
+            TILES["transparent"][target.map.components[Tiles if not player_pov else MemoryTiles]],
             pov=target.ij,
             radius=self.radius,
             algorithm=tcod.constants.FOV_SYMMETRIC_SHADOWCAST,

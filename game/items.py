@@ -64,18 +64,21 @@ class TargetScroll:
 
     def on_apply(self, actor: Entity, item: Entity, target: Position | None = None) -> ActionResult:
         """Cast items spell at nearest target in range."""
-        actor.registry["cursor"].components[Position] = actor.components[Position]
         spell = item.components[PositionSpell]
         highlighter = (
-            functools.partial(spell.get_affected_area, use_memory=True) if isinstance(spell, AreaOfEffect) else None
+            functools.partial(spell.get_affected_area, player_pov=True) if isinstance(spell, AreaOfEffect) else None
         )
         if target is None:
+            actor.registry["cursor"].components[Position] = actor.components[Position]
             return Poll(
                 PositionSelect(
                     pick_callback=lambda pos: do_player_action(actor, lambda actor: self.on_apply(actor, item, pos)),
                     highlighter=highlighter,
                 )
             )
+
+        if not actor.components[Position].map.components[VisibleTiles][target.ij]:
+            return Impossible("Target is out of view.")
 
         result = item.components[PositionSpell].cast_at_position(actor, item, target)
         if result:

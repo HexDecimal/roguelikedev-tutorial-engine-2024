@@ -32,5 +32,5 @@ class PositionSpell(Protocol):
 class AreaOfEffect(Protocol):
     """Spell with an area of effect."""
 
-    def get_affected_area(self, target: Position) -> NDArray[np.bool]:
+    def get_affected_area(self, target: Position, *, player_pov: bool = False) -> NDArray[np.bool]:
         """Return the affect area for this spell."""
