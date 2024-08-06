@@ -186,6 +186,7 @@ def generate_dungeon(
             new_monster.components[AI] = HostileAI()
 
         for _, pos in zip(range(max_items_per_room), room.iter_random_spaces(rng, map_), strict=False):
-            spawn_item(world["health_potion"], pos)
+            (item_kind,) = rng.choices([world["health_potion"], world["lightning_scroll"]], weights=[7, 3])
+            spawn_item(item_kind, pos)
 
     return map_

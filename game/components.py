@@ -31,6 +31,11 @@ class Position:
         """Return coordinates for Numpy indexing."""
         return self.y, self.x
 
+    def distance_squared(self, other: Position) -> int:
+        """Return the squared distance between two positions."""
+        assert self.map == other.map
+        return (self.x - other.x) ** 2 + (self.y - other.y) ** 1
+
 
 @attrs.define(frozen=True)
 class Graphic:

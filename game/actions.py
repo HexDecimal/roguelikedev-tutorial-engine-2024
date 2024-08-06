@@ -11,7 +11,7 @@ from game.action import ActionResult, Impossible, Success
 from game.combat import apply_damage, melee_damage
 from game.components import MapShape, Name, Position, Tiles, VisibleTiles
 from game.constants import INVENTORY_KEYS
-from game.effect import Effect
+from game.item import ApplyAction
 from game.messages import add_message
 from game.tags import IsActor, IsIn, IsItem, IsPlayer
 from game.tiles import TILES
@@ -169,13 +169,10 @@ class ApplyItem:
     item: tcod.ecs.Entity
 
     def __call__(self, actor: tcod.ecs.Entity) -> ActionResult:
-        """Check for and pickup item."""
-        item = self.item
-        add_message(actor.registry, f"""You consume the {item.components.get(Name, "?")}!""")
-        if Effect in item.components:
-            item.components[Effect].affect(actor)
-        item.clear()
-        return Success()
+        """Defer to items apply behavior."""
+        if ApplyAction not in self.item.components:
+            return Impossible(f"""Can not use the {self.item.components.get(Name, "?")}""")
+        return self.item.components[ApplyAction].on_apply(actor, self.item)
 
 
 @attrs.define

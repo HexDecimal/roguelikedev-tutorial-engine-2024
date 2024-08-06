@@ -11,7 +11,11 @@ import game.procgen
 from game.components import HP, Defense, Graphic, MaxHP, Name, Position, Power
 from game.effect import Effect
 from game.effects import Healing
+from game.item import ApplyAction
+from game.items import Potion, RandomTargetScroll
 from game.messages import MessageLog, add_message
+from game.spell import Spell
+from game.spells import LightningBolt
 from game.tags import IsPlayer
 
 
@@ -68,3 +72,10 @@ def init_items(world: tcod.ecs.Registry) -> None:
     health_potion.components[Name] = "Health Potion"
     health_potion.components[Graphic] = Graphic(ord("!"), (127, 0, 255))
     health_potion.components[Effect] = Healing(4)
+    health_potion.components[ApplyAction] = Potion()
+
+    lightning_scroll = world["lightning_scroll"]
+    lightning_scroll.components[Name] = "Lightning Scroll"
+    lightning_scroll.components[Graphic] = Graphic(ord("~"), (255, 255, 0))
+    lightning_scroll.components[ApplyAction] = RandomTargetScroll(maximum_range=5)
+    lightning_scroll.components[Spell] = LightningBolt(damage=20)
