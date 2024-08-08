@@ -37,3 +37,4 @@ class Action(Protocol):
 
     def __call__(self, actor: Entity, /) -> ActionResult:
         """Perform action."""
+        ...

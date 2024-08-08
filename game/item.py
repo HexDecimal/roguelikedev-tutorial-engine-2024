@@ -14,3 +14,4 @@ class ApplyAction(Protocol):
 
     def on_apply(self, actor: Entity, item: Entity, /) -> ActionResult:
         """On apply behavior."""
+        ...

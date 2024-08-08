@@ -15,6 +15,8 @@ class State(Protocol):
 
     def on_event(self, event: tcod.event.Event, /) -> State:
         """Handle events."""
+        ...
 
     def on_draw(self, console: tcod.console.Console, /) -> None:
         """Handle drawing."""
+        ...

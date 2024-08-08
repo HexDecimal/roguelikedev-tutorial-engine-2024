@@ -12,6 +12,7 @@
     "[python]": {
         "editor.defaultFormatter": "charliermarsh.ruff"
     },
+    "python.analysis.typeCheckingMode": "standard",
     "cSpell.words": [
         "autoupdate",
         "Benesch",

@@ -18,6 +18,7 @@ class EntitySpell(Protocol):
 
     def cast_at_entity(self, castor: Entity, item: Entity | None, target: Entity, /) -> ActionResult:
         """Cast at an entity."""
+        ...
 
 
 @runtime_checkable
@@ -26,6 +27,7 @@ class PositionSpell(Protocol):
 
     def cast_at_position(self, castor: Entity, item: Entity | None, target: Position, /) -> ActionResult:
         """Cast at a tile position."""
+        ...
 
 
 @runtime_checkable
@@ -34,3 +36,4 @@ class AreaOfEffect(Protocol):
 
     def get_affected_area(self, target: Position, *, player_pov: bool = False) -> NDArray[np.bool]:
         """Return the affect area for this spell."""
+        ...
