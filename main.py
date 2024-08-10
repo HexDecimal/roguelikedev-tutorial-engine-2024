@@ -35,7 +35,10 @@ def main() -> None:
     g.state = game.states.MainMenu()
 
     if SAVE_PATH.exists():
-        g.world = load_world(SAVE_PATH)
+        try:
+            g.world = load_world(SAVE_PATH)
+        except Exception:
+            logger.exception("Failed to load %s", SAVE_PATH)
 
     try:
         with tcod.context.new(console=g.console, tileset=tileset, title=TITLE) as g.context:
