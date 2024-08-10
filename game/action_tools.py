@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 def do_player_action(player: tcod.ecs.Entity, action: Action) -> State:
     """Perform an action on the player."""
     assert IsPlayer in player.tags
+    if player.components[HP] <= 0:
+        return game.states.InGame()
     result = action(player)
     update_fov(player)
     match result:
@@ -30,8 +32,6 @@ def do_player_action(player: tcod.ecs.Entity, action: Action) -> State:
         case Impossible(reason=reason):
             add_message(player.registry, reason, fg="impossible")
 
-    if player.components[HP] <= 0:
-        return game.states.GameOver()
     return game.states.InGame()
 
 

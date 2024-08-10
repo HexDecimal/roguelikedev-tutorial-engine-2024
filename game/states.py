@@ -11,10 +11,13 @@ import tcod.console
 import tcod.constants
 import tcod.event
 from numpy.typing import NDArray  # noqa: TCH002
+from tcod import libtcodpy
 from tcod.ecs import Entity  # noqa: TCH002
 from tcod.event import KeySym
 
 import g
+import game.color
+import game.world_init
 from game.action import Action  # noqa: TCH001
 from game.action_tools import do_player_action
 from game.actions import ApplyItem, Bump, DropItem, PickupItem
@@ -29,10 +32,12 @@ from game.tags import IsIn, IsItem, IsPlayer
 class InGame(State):
     """In-game main player control state."""
 
-    def on_event(self, event: tcod.event.Event) -> State:
+    def on_event(self, event: tcod.event.Event) -> State:  # noqa: PLR0911
         """Handle basic events and movement."""
         (player,) = g.world.Q.all_of(tags=[IsPlayer])
         match event:
+            case tcod.event.KeyDown(sym=KeySym.ESCAPE):
+                return MainMenu()
             case tcod.event.KeyDown(sym=sym) if sym in DIRECTION_KEYS:
                 return do_player_action(player, Bump(DIRECTION_KEYS[sym]))
             case tcod.event.KeyDown(sym=KeySym.g):
@@ -43,22 +48,6 @@ class InGame(State):
                 return ItemSelect.player_verb(player, "drop", DropItem)
             case tcod.event.KeyDown(sym=KeySym.SLASH):
                 return PositionSelect.init_look()
-        return self
-
-    def on_draw(self, console: tcod.console.Console) -> None:
-        """Render the current map and entities."""
-        main_render(g.world, console)
-
-
-@attrs.define
-class GameOver(State):
-    """Game over state."""
-
-    def on_event(self, event: tcod.event.Event) -> State:
-        """Disables most actions."""
-        match event:
-            case tcod.event.KeyDown(sym=KeySym.ESCAPE):
-                raise SystemExit
         return self
 
     def on_draw(self, console: tcod.console.Console) -> None:
@@ -171,3 +160,56 @@ class PositionSelect:
         """Render the main screen."""
         highlight = self.highlighter(g.world["cursor"].components[Position]) if self.highlighter is not None else None
         main_render(g.world, console, highlight=highlight)
+
+
+@attrs.define
+class MainMenu:
+    """Handle the main menu rendering and input."""
+
+    def on_event(self, event: tcod.event.Event) -> State:
+        """Handle menu keys."""
+        match event:
+            case tcod.event.KeyDown(sym=KeySym.q):
+                raise SystemExit
+            case tcod.event.KeyDown(sym=KeySym.c | KeySym.ESCAPE):
+                if hasattr(g, "world"):
+                    return InGame()
+            case tcod.event.KeyDown(sym=KeySym.n):
+                g.world = game.world_init.new_world()
+                return InGame()
+
+        return self
+
+    def on_draw(self, console: tcod.console.Console) -> None:
+        """Render the main menu."""
+        if hasattr(g, "world"):
+            main_render(g.world, console)
+            console.rgb["fg"] //= 8
+            console.rgb["bg"] //= 8
+
+        console.print(
+            console.width // 2,
+            console.height // 2 - 4,
+            "TOMBS OF THE ANCIENT KINGS",
+            fg=game.color.menu_title,
+            alignment=tcod.constants.CENTER,
+        )
+        console.print(
+            console.width // 2,
+            console.height - 2,
+            'By Kyle "HexDecimal" Benesch',
+            fg=game.color.menu_title,
+            alignment=tcod.constants.CENTER,
+        )
+
+        menu_width = 24
+        for i, text in enumerate(["[N] Play a new game", "[C] Continue last game", "[Q] Quit"]):
+            console.print(
+                console.width // 2,
+                console.height // 2 - 2 + i,
+                text.ljust(menu_width),
+                fg=game.color.menu_text,
+                bg=game.color.black,
+                alignment=tcod.constants.CENTER,
+                bg_blend=libtcodpy.BKGND_ALPHA(64),
+            )
