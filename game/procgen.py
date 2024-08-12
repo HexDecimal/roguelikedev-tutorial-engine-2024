@@ -16,7 +16,7 @@ from numpy.typing import NDArray  # noqa: TCH002
 import game.map_tools
 from game.actions import HostileAI
 from game.actor_tools import spawn_actor
-from game.components import AI, Graphic, Position, Tiles
+from game.components import AI, Graphic, Level, Position, Tiles
 from game.item_tools import spawn_item
 from game.map import MapKey
 from game.tiles import TILE_NAMES
@@ -127,6 +127,7 @@ def generate_dungeon(  # noqa: C901
     """Return a new generated map."""
     map_height, map_width = shape
     map_ = game.map_tools.new_map(world, shape)
+    map_.components[Level] = floor
     map_tiles = map_.components[Tiles]
     map_tiles[:] = TILE_NAMES["wall"]
     rng = world[None].components[Random]

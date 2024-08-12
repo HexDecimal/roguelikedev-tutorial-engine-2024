@@ -11,7 +11,7 @@ import tcod.ecs
 from numpy.typing import NDArray  # noqa: TCH002
 
 import g
-from game.components import HP, Graphic, MapShape, MaxHP, MemoryTiles, Name, Position, Tiles, VisibleTiles
+from game.components import HP, Graphic, Level, MapShape, MaxHP, MemoryTiles, Name, Position, Tiles, VisibleTiles
 from game.messages import Message, MessageLog
 from game.tags import IsActor, IsGhost, IsIn, IsPlayer
 from game.tiles import TILES
@@ -129,6 +129,7 @@ def main_render(
         empty_color=color.bar_empty,
         full_color=color.bar_filled,
     )
+    console.print(x=0, y=47, string=f""" Dungeon level: {map_.components.get(Level, "?")}""", fg=(255, 255, 255))
     render_messages(world, width=40, height=5).blit(dest=console, dest_x=21, dest_y=45)
     if g.cursor_location:
         render_names_at_position(console, x=21, y=44, pos=Position(*g.cursor_location, map_))
