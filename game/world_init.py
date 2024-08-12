@@ -13,10 +13,11 @@ from game.effect import Effect
 from game.effects import Healing
 from game.item import ApplyAction
 from game.items import Potion, RandomTargetScroll, TargetScroll
+from game.map_tools import get_map
 from game.messages import MessageLog, add_message
 from game.spell import EntitySpell, PositionSpell
 from game.spells import Fireball, LightningBolt
-from game.tags import IsPlayer
+from game.tags import IsIn, IsPlayer
 
 
 def new_world() -> tcod.ecs.Registry:
@@ -28,10 +29,9 @@ def new_world() -> tcod.ecs.Registry:
     init_creatures(world)
     init_items(world)
 
-    map_ = game.procgen.generate_dungeon(world=world, shape=(45, 80))
-    world[None].relation_tag["ActiveMap"] = map_
+    map_ = get_map(world, game.procgen.Tombs(1))
 
-    (start,) = world.Q.all_of(tags=["UpStairs"])
+    (start,) = world.Q.all_of(tags=["UpStairs"], relations=[(IsIn, map_)])
 
     player = game.actor_tools.spawn_actor(world["player"], start.components[Position])
     player.tags.add(IsPlayer)

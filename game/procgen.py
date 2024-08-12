@@ -18,6 +18,7 @@ from game.actions import HostileAI
 from game.actor_tools import spawn_actor
 from game.components import AI, Graphic, Position, Tiles
 from game.item_tools import spawn_item
+from game.map import MapKey
 from game.tiles import TILE_NAMES
 
 
@@ -111,7 +112,7 @@ def tunnel_between_indices(
     return tuple(tunnel.T)  # type: ignore[return-value]
 
 
-def generate_dungeon(
+def generate_dungeon(  # noqa: C901
     *,
     world: tcod.ecs.World,
     shape: tuple[int, int],
@@ -121,6 +122,7 @@ def generate_dungeon(
     max_iterations: int = 100_000,
     max_monsters_per_room: int = 2,
     max_items_per_room: int = 2,
+    floor: int,
 ) -> tcod.ecs.Entity:
     """Return a new generated map."""
     map_height, map_width = shape
@@ -172,10 +174,14 @@ def generate_dungeon(
     up_stairs.components[Position] = next(rooms[0].iter_random_spaces(rng, map_))
     up_stairs.components[Graphic] = Graphic(ord("<"), (255, 255, 255))
     up_stairs.tags.add("UpStairs")
+    if floor > 1:
+        up_stairs.components[MapKey] = Tombs(level=floor - 1)
 
     down_stairs = world[object()]
     down_stairs.components[Position] = next(rooms[-1].iter_random_spaces(rng, map_))
     down_stairs.components[Graphic] = Graphic(ord(">"), (255, 255, 255))
+    down_stairs.tags.add("DownStairs")
+    down_stairs.components[MapKey] = Tombs(level=floor + 1)
 
     for room in rooms[1:-1]:
         for _, pos in zip(
@@ -192,3 +198,14 @@ def generate_dungeon(
             spawn_item(item_kind, pos)
 
     return map_
+
+
+@attrs.define(frozen=True)
+class Tombs:
+    """The tombs."""
+
+    level: int
+
+    def generate(self, world: tcod.ecs.Registry) -> tcod.ecs.Entity:
+        """Generate the tombs."""
+        return generate_dungeon(world=world, shape=(45, 80), floor=self.level)

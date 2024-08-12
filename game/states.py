@@ -13,14 +13,14 @@ import tcod.event
 from numpy.typing import NDArray  # noqa: TCH002
 from tcod import libtcodpy
 from tcod.ecs import Entity  # noqa: TCH002
-from tcod.event import KeySym
+from tcod.event import KeySym, Modifier, Scancode
 
 import g
 import game.color
 import game.world_init
 from game.action import Action  # noqa: TCH001
 from game.action_tools import do_player_action
-from game.actions import ApplyItem, Bump, DropItem, PickupItem
+from game.actions import ApplyItem, Bump, DropItem, PickupItem, TakeStairs
 from game.components import Name, Position
 from game.constants import DIRECTION_KEYS, INVENTORY_KEYS
 from game.rendering import main_render
@@ -32,14 +32,12 @@ from game.tags import IsIn, IsItem, IsPlayer
 class InGame(State):
     """In-game main player control state."""
 
-    def on_event(self, event: tcod.event.Event) -> State:  # noqa: PLR0911
+    def on_event(self, event: tcod.event.Event) -> State:  # noqa: C901, PLR0911
         """Handle basic events and movement."""
         (player,) = g.world.Q.all_of(tags=[IsPlayer])
         match event:
             case tcod.event.KeyDown(sym=KeySym.ESCAPE):
                 return MainMenu()
-            case tcod.event.KeyDown(sym=sym) if sym in DIRECTION_KEYS:
-                return do_player_action(player, Bump(DIRECTION_KEYS[sym]))
             case tcod.event.KeyDown(sym=KeySym.g):
                 return do_player_action(player, PickupItem())
             case tcod.event.KeyDown(sym=KeySym.i):
@@ -48,6 +46,16 @@ class InGame(State):
                 return ItemSelect.player_verb(player, "drop", DropItem)
             case tcod.event.KeyDown(sym=KeySym.SLASH):
                 return PositionSelect.init_look()
+            case tcod.event.KeyDown(sym=KeySym.PERIOD, mod=mod) if mod & Modifier.SHIFT:
+                return do_player_action(player, TakeStairs("down"))
+            case tcod.event.KeyDown(sym=KeySym.COMMA, mod=mod) if mod & Modifier.SHIFT:
+                return do_player_action(player, TakeStairs("up"))
+            case tcod.event.KeyDown(scancode=Scancode.NONUSBACKSLASH, mod=mod) if mod & Modifier.SHIFT:
+                return do_player_action(player, TakeStairs("down"))
+            case tcod.event.KeyDown(scancode=Scancode.NONUSBACKSLASH, mod=mod) if not mod & Modifier.SHIFT:
+                return do_player_action(player, TakeStairs("up"))
+            case tcod.event.KeyDown(sym=sym) if sym in DIRECTION_KEYS:
+                return do_player_action(player, Bump(DIRECTION_KEYS[sym]))
         return self
 
     def on_draw(self, console: tcod.console.Console) -> None:

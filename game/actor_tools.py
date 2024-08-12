@@ -14,18 +14,22 @@ from game.tags import IsActor, IsGhost, IsIn, IsPlayer
 from game.tiles import TILES
 
 
-def update_fov(actor: tcod.ecs.Entity) -> None:
+def update_fov(actor: tcod.ecs.Entity, *, clear: bool = False) -> None:
     """Update the FOV of an actor."""
     assert IsPlayer in actor.tags
     map_: Final = actor.relation_tag[IsIn]
     transparency: Final = TILES["transparent"][map_.components[Tiles]]
     old_visible: Final = map_.components[VisibleTiles]
-    map_.components[VisibleTiles] = new_visible = tcod.map.compute_fov(
-        transparency,
-        pov=actor.components[Position].ij,
-        radius=10,
-        algorithm=tcod.constants.FOV_SYMMETRIC_SHADOWCAST,
-    )
+    if clear:  # Unset visibility, for before level transitions.
+        map_.components[VisibleTiles][:] = False
+        new_visible = map_.components[VisibleTiles]
+    else:
+        map_.components[VisibleTiles] = new_visible = tcod.map.compute_fov(
+            transparency,
+            pov=actor.components[Position].ij,
+            radius=10,
+            algorithm=tcod.constants.FOV_SYMMETRIC_SHADOWCAST,
+        )
     map_.components[MemoryTiles] = np.where(new_visible, map_.components[Tiles], map_.components[MemoryTiles])
 
     now_invisible: Final = old_visible & ~new_visible  # Tiles which have gone out of view, should leave ghosts

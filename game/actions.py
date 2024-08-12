@@ -2,16 +2,19 @@
 
 from __future__ import annotations
 
-from typing import Final, Self
+from typing import Final, Literal, Self
 
 import attrs
 import tcod.ecs  # noqa: TCH002
 
 from game.action import ActionResult, Impossible, Success
+from game.actor_tools import update_fov
 from game.combat import apply_damage, melee_damage
 from game.components import MapShape, Name, Position, Tiles, VisibleTiles
 from game.constants import INVENTORY_KEYS
 from game.item import ApplyAction
+from game.map import MapKey
+from game.map_tools import get_map
 from game.messages import add_message
 from game.tags import IsActor, IsIn, IsItem, IsPlayer
 from game.tiles import TILES
@@ -188,4 +191,49 @@ class DropItem:
         add_message(actor.registry, f"""You drop the {item.components.get(Name, "?")}!""")
         del item.relation_tag[IsIn]
         item.components[Position] = actor.components[Position]
+        return Success()
+
+
+@attrs.define
+class TakeStairs:
+    """Traverse stairs action."""
+
+    dir: Literal["down", "up"]
+
+    def __call__(self, actor: tcod.ecs.Entity) -> ActionResult:
+        """Find and traverse stairs for this actor."""
+        dir_tag = "DownStairs" if self.dir == "down" else "UpStairs"
+        dir_tag_reverse = "DownStairs" if self.dir == "up" else "UpStairs"
+        stairs_found = actor.registry.Q.all_of(tags=[actor.components[Position], dir_tag]).get_entities()
+        if not stairs_found:
+            return Impossible(f"There are no {self.dir}ward stairs here!")
+
+        (stairs,) = stairs_found
+        if MapKey not in stairs.components:
+            return Impossible("You can not leave yet.")  # Generic description for non-exits for now.
+
+        dir_desc = "descend" if self.dir == "down" else "ascend"
+        return MoveLevel(
+            dest_map=stairs.components[MapKey],
+            exit_tag=(dir_tag_reverse,),
+            message=f"""You {dir_desc} the stairs.""",
+        )(actor)
+
+
+@attrs.define
+class MoveLevel:
+    """Handle level transition."""
+
+    dest_map: MapKey
+    exit_tag: tuple[object, ...] = ()
+    message: str = ""
+
+    def __call__(self, actor: tcod.ecs.Entity) -> ActionResult:
+        """Move actor to the exit passage of the destination map."""
+        update_fov(actor, clear=True)
+
+        dest_map = get_map(actor.registry, self.dest_map)
+        (dest_stairs,) = actor.registry.Q.all_of(tags=self.exit_tag, relations=[(IsIn, dest_map)]).get_entities()
+        add_message(actor.registry, self.message)
+        actor.components[Position] = dest_stairs.components[Position]
         return Success()
