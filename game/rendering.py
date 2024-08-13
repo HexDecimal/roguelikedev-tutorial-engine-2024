@@ -11,8 +11,8 @@ import tcod.ecs
 from numpy.typing import NDArray  # noqa: TCH002
 
 import g
-from game.actor_tools import get_player_actor
-from game.components import HP, Floor, Graphic, MapShape, MaxHP, MemoryTiles, Name, Position, Tiles, VisibleTiles
+from game.actor_tools import get_player_actor, required_xp_for_level
+from game.components import HP, XP, Floor, Graphic, MapShape, MaxHP, MemoryTiles, Name, Position, Tiles, VisibleTiles
 from game.messages import Message, MessageLog
 from game.tags import IsActor, IsGhost, IsIn
 from game.tiles import TILES
@@ -129,6 +129,17 @@ def main_render(
         text=f" HP: {player.components[HP]}/{player.components.get(MaxHP, 0)}",
         empty_color=color.bar_empty,
         full_color=color.bar_filled,
+    )
+    player.components.setdefault(XP, 0)
+    render_bar(
+        console,
+        x=0,
+        y=46,
+        width=20,
+        value=player.components[XP] / required_xp_for_level(player),
+        text=f" XP: {player.components[XP]}/{required_xp_for_level(player)}",
+        empty_color=color.bar_xp_empty,
+        full_color=color.bar_xp_filled,
     )
     console.print(x=0, y=47, string=f""" Dungeon level: {map_.components.get(Floor, "?")}""", fg=(255, 255, 255))
     render_messages(world, width=40, height=5).blit(dest=console, dest_x=21, dest_y=45)
