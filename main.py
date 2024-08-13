@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime
 from pathlib import Path
 
+import imageio
 import tcod.console
 import tcod.context
 import tcod.ecs
@@ -26,7 +28,7 @@ SAVE_PATH = Path("saved.sav")
 logger = logging.getLogger(__name__)
 
 
-def main() -> None:
+def main() -> None:  # noqa: C901
     """Main entry point."""
     logging.basicConfig(level="DEBUG")
     tileset = tcod.tileset.load_tilesheet("assets/Alloy_curses_12x12.png", 16, 16, tcod.tileset.CHARMAP_CP437)
@@ -56,6 +58,13 @@ def main() -> None:
                             g.cursor_location = position
                         case tcod.event.WindowEvent(type="WindowLeave"):
                             g.cursor_location = None
+                        case tcod.event.KeyDown(sym=tcod.event.KeySym.PRINTSCREEN):
+                            screenshots = Path("screenshots")
+                            screenshots.mkdir(exist_ok=True)
+                            imageio.imsave(
+                                screenshots / f"tt2024.{datetime.now():%Y-%m-%d-%H-%M-%S-%f}.png",  # noqa: DTZ005
+                                tileset.render(g.console),
+                            )
                     try:
                         g.state = g.state.on_event(event)
                     except Exception:
