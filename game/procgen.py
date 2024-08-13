@@ -192,7 +192,7 @@ def generate_dungeon(  # noqa: C901
             new_monster = spawn_actor(monster_kind, pos)
             new_monster.components[AI] = HostileAI()
 
-        for _, pos in zip(range(max_items_per_room), room.iter_random_spaces(rng, map_), strict=False):
+        for _, pos in zip(range(rng.randint(0, max_items_per_room)), room.iter_random_spaces(rng, map_), strict=False):
             (item_kind,) = rng.choices(
                 [world["health_potion"], world["lightning_scroll"], world["fireball_scroll"]], weights=[6, 3, 2]
             )
