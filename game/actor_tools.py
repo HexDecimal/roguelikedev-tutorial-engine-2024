@@ -9,9 +9,16 @@ import tcod.constants
 import tcod.ecs
 import tcod.map
 
-from game.components import Graphic, MemoryTiles, Name, Position, Tiles, VisibleTiles
+from game.components import XP, Graphic, Level, MemoryTiles, Name, Position, Tiles, VisibleTiles
+from game.messages import add_message
 from game.tags import IsActor, IsGhost, IsIn, IsPlayer
 from game.tiles import TILES
+
+
+def get_player_actor(world: tcod.ecs.Registry) -> tcod.ecs.Entity:
+    """Return the active player entity."""
+    (player,) = world.Q.all_of(tags=[IsPlayer])
+    return player
 
 
 def update_fov(actor: tcod.ecs.Entity, *, clear: bool = False) -> None:
@@ -59,3 +66,23 @@ def spawn_actor(template: tcod.ecs.Entity, position: Position) -> tcod.ecs.Entit
     actor.tags.add(IsActor)
     actor.components[Position] = position
     return actor
+
+
+def required_xp_for_level(actor: tcod.ecs.Entity) -> int:
+    """Return XP needed for the next level."""
+    return 200 + (actor.components.get(Level, 1) - 1) * 150
+
+
+def can_level_up(actor: tcod.ecs.Entity) -> bool:
+    """Return True if this actor can level up."""
+    return actor.components.get(XP, 0) >= required_xp_for_level(actor)
+
+
+def level_up(actor: tcod.ecs.Entity) -> None:
+    """Handle level up."""
+    actor.components.setdefault(Level, 1)
+    actor.components.setdefault(XP, 0)
+    assert actor.components[XP] >= required_xp_for_level(actor)
+    actor.components[XP] -= required_xp_for_level(actor)
+    actor.components[Level] += 1
+    add_message(actor.registry, f"You advance to level {actor.components[Level]}!")

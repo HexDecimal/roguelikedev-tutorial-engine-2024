@@ -83,8 +83,17 @@ Defense: Final = ("Defense", int)
 AI: Final = ("AI", Action)
 """Action for AI actor."""
 
-Level: Final = ("Level", int)
+Floor: Final = ("Floor", int)
 """Dungeon floor."""
+
+Level: Final = ("Level", int)
+"""Character level."""
+
+XP: Final = ("XP", int)
+"""Character experience."""
+
+RewardXP: Final = ("RewardXP", int)
+"""Character experience reward."""
 
 
 @tcod.ecs.callbacks.register_component_changed(component=Position)

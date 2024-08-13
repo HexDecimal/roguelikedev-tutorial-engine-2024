@@ -8,7 +8,7 @@ import tcod.ecs  # noqa: TCH002
 
 import game.states
 from game.action import Action, Impossible, Poll, Success
-from game.actor_tools import update_fov
+from game.actor_tools import can_level_up, update_fov
 from game.components import AI, HP
 from game.messages import add_message
 from game.state import State  # noqa: TCH001
@@ -31,6 +31,9 @@ def do_player_action(player: tcod.ecs.Entity, action: Action) -> State:
             return state
         case Impossible(reason=reason):
             add_message(player.registry, reason, fg="impossible")
+
+    if can_level_up(player):
+        return game.states.LevelUp()
 
     return game.states.InGame()
 

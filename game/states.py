@@ -21,8 +21,10 @@ import game.world_init
 from game.action import Action  # noqa: TCH001
 from game.action_tools import do_player_action
 from game.actions import ApplyItem, Bump, DropItem, PickupItem, TakeStairs
-from game.components import Name, Position
+from game.actor_tools import get_player_actor, level_up
+from game.components import HP, Defense, MaxHP, Name, Position, Power
 from game.constants import DIRECTION_KEYS, INVENTORY_KEYS
+from game.messages import add_message
 from game.rendering import main_render
 from game.state import State
 from game.tags import IsIn, IsItem, IsPlayer
@@ -34,7 +36,7 @@ class InGame(State):
 
     def on_event(self, event: tcod.event.Event) -> State:  # noqa: C901, PLR0911
         """Handle basic events and movement."""
-        (player,) = g.world.Q.all_of(tags=[IsPlayer])
+        player = get_player_actor(g.world)
         match event:
             case tcod.event.KeyDown(sym=KeySym.ESCAPE):
                 return MainMenu()
@@ -221,3 +223,71 @@ class MainMenu:
                 alignment=tcod.constants.CENTER,
                 bg_blend=libtcodpy.BKGND_ALPHA(64),
             )
+
+
+@attrs.define
+class LevelUp:
+    """Level up state."""
+
+    def on_draw(self, console: tcod.console.Console) -> None:
+        """Draw the level up menu."""
+        player = get_player_actor(g.world)
+        main_render(g.world, console)
+        console.rgb["fg"] //= 8
+        console.rgb["bg"] //= 8
+        x = 1
+        y = 1
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=35,
+            height=8,
+            title="Level Up",
+            clear=True,
+            fg=(255, 255, 255),
+            bg=(0, 0, 0),
+        )
+
+        console.print(x=x + 1, y=y + 1, string="Congratulations! You level up!")
+        console.print(x=x + 1, y=y + 2, string="Select an attribute to increase.")
+
+        console.print(
+            x=x + 1,
+            y=y + 4,
+            string=f"a) Constitution (+20 HP, from {player.components[MaxHP]})",
+        )
+        console.print(
+            x=x + 1,
+            y=y + 5,
+            string=f"b) Strength (+1 attack, from {player.components[Power]})",
+        )
+        console.print(
+            x=y + x + 1,
+            y=y + 6,
+            string=f"c) Agility (+1 defense, from {player.components[Defense]})",
+        )
+
+    def on_event(self, event: tcod.event.Event) -> State:
+        """Apply level up mechanics."""
+        player = get_player_actor(g.world)
+
+        match event:
+            case tcod.event.KeyDown(sym=KeySym.a):
+                player.components[MaxHP] += 20
+                player.components[HP] += 20
+                level_up(player)
+                add_message(g.world, "Your health improves!")
+                return InGame()
+            case tcod.event.KeyDown(sym=KeySym.b):
+                player.components[Power] += 1
+                level_up(player)
+                add_message(g.world, "You feel stronger!")
+                return InGame()
+            case tcod.event.KeyDown(sym=KeySym.c):
+                player.components[Defense] += 1
+                level_up(player)
+                add_message(g.world, "Your movements are getting swifter!")
+                return InGame()
+
+        return self

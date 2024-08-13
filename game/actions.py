@@ -65,7 +65,7 @@ class Melee:
         attack_desc = f"""{entity.components[Name]} attacks {target.components[Name]}"""
         if damage > 0:
             add_message(entity.registry, f"{attack_desc} for {damage} hit points.", attack_color)
-            apply_damage(target, damage)
+            apply_damage(target, damage, blame=entity)
         else:
             add_message(entity.registry, f"{attack_desc} but does no damage.", attack_color)
 

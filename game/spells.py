@@ -29,7 +29,7 @@ class LightningBolt:
             castor.registry,
             f"A lighting bolt strikes the {target.components.get(Name)} with a loud thunder, for {self.damage} damage!",
         )
-        apply_damage(target, self.damage)
+        apply_damage(target, self.damage, blame=castor)
         return Success()
 
 
@@ -85,7 +85,7 @@ class Fireball(SphereAOE):
                 castor.registry,
                 f"""The {entity.components.get(Name, "?")} is engulfed in a fiery explosion, taking {self.damage} damage!""",
             )
-            apply_damage(entity, self.damage)
+            apply_damage(entity, self.damage, blame=castor)
             targets_hit = True
 
         if not targets_hit:

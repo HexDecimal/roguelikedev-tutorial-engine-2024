@@ -6,7 +6,7 @@ import logging
 
 import tcod.ecs  # noqa: TCH002
 
-from game.components import AI, HP, Defense, Graphic, MaxHP, Name, Power
+from game.components import AI, HP, XP, Defense, Graphic, MaxHP, Name, Power, RewardXP
 from game.messages import add_message
 from game.tags import IsActor, IsPlayer
 
@@ -18,14 +18,14 @@ def melee_damage(entity: tcod.ecs.Entity, target: tcod.ecs.Entity) -> int:
     return max(0, entity.components.get(Power, 0) - target.components.get(Defense, 0))
 
 
-def apply_damage(entity: tcod.ecs.Entity, damage: int) -> None:
+def apply_damage(entity: tcod.ecs.Entity, damage: int, blame: tcod.ecs.Entity) -> None:
     """Deal damage to an entity."""
     entity.components[HP] -= damage
     if entity.components[HP] <= 0:
-        die(entity)
+        die(entity, blame)
 
 
-def die(entity: tcod.ecs.Entity) -> None:
+def die(entity: tcod.ecs.Entity, blame: tcod.ecs.Entity | None) -> None:
     """Kill an entity."""
     is_player = IsPlayer in entity.tags
     add_message(
@@ -33,6 +33,13 @@ def die(entity: tcod.ecs.Entity) -> None:
         text="You died!" if is_player else f"{entity.components[Name]} is dead!",
         fg="player_die" if is_player else "enemy_die",
     )
+    if blame:
+        blame.components.setdefault(XP, 0)
+        blame.components[XP] += entity.components.get(RewardXP, 0)
+        add_message(
+            entity.registry, f"{blame.components[Name]} gains {entity.components.get(RewardXP, 0)} experience points."
+        )
+
     entity.components[Graphic] = Graphic(ord("%"), (191, 0, 0))
     entity.components[Name] = f"remains of {entity.components[Name]}"
     entity.components.pop(AI, None)
