@@ -21,8 +21,8 @@ import game.world_init
 from game.action import Action  # noqa: TCH001
 from game.action_tools import do_player_action
 from game.actions import ApplyItem, Bump, DropItem, PickupItem, TakeStairs
-from game.actor_tools import get_player_actor, level_up
-from game.components import HP, Defense, MaxHP, Name, Position, Power
+from game.actor_tools import get_player_actor, level_up, required_xp_for_level
+from game.components import HP, XP, Defense, Level, MaxHP, Name, Position, Power
 from game.constants import DIRECTION_KEYS, INVENTORY_KEYS
 from game.messages import add_message
 from game.rendering import main_render
@@ -40,6 +40,8 @@ class InGame(State):
         match event:
             case tcod.event.KeyDown(sym=KeySym.ESCAPE):
                 return MainMenu()
+            case tcod.event.KeyDown(sym=KeySym.c):
+                return CharacterScreen()
             case tcod.event.KeyDown(sym=KeySym.g):
                 return do_player_action(player, PickupItem())
             case tcod.event.KeyDown(sym=KeySym.i):
@@ -263,7 +265,7 @@ class LevelUp:
             string=f"b) Strength (+1 attack, from {player.components[Power]})",
         )
         console.print(
-            x=y + x + 1,
+            x=x + 1,
             y=y + 6,
             string=f"c) Agility (+1 defense, from {player.components[Defense]})",
         )
@@ -290,4 +292,54 @@ class LevelUp:
                 add_message(g.world, "Your movements are getting swifter!")
                 return InGame()
 
+        return self
+
+
+@attrs.define
+class CharacterScreen:
+    """Character screen state."""
+
+    def on_draw(self, console: tcod.console.Console) -> None:
+        """Draw player stats."""
+        main_render(g.world, console)
+        console.rgb["fg"] //= 8
+        console.rgb["bg"] //= 8
+        x = 1
+        y = 1
+
+        player = get_player_actor(g.world)
+        x = 1
+        y = 1
+
+        title = "Character Information"
+
+        width = len(title) + 6
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width,
+            height=7,
+            title=title,
+            clear=True,
+            fg=(255, 255, 255),
+            bg=(0, 0, 0),
+        )
+
+        console.print(x=x + 1, y=y + 1, string=f"Level: {player.components.get(Level, 1)}")
+        console.print(x=x + 1, y=y + 2, string=f"XP: {player.components.get(XP, 0)}")
+        console.print(
+            x=x + 1,
+            y=y + 3,
+            string=f"XP for next Level: {required_xp_for_level(player) - player.components.get(XP, 0)}",
+        )
+
+        console.print(x=x + 1, y=y + 4, string=f"Attack: {player.components[Power]}")
+        console.print(x=x + 1, y=y + 5, string=f"Defense: {player.components[Defense]}")
+
+    def on_event(self, event: tcod.event.Event) -> State:
+        """Exit state on any key."""
+        match event:
+            case tcod.event.KeyDown():
+                return InGame()
         return self
