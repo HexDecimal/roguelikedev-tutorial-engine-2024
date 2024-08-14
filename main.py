@@ -6,6 +6,7 @@ from __future__ import annotations
 import logging
 from datetime import datetime
 from pathlib import Path
+from typing import NoReturn
 
 import imageio
 import tcod.console
@@ -28,7 +29,7 @@ SAVE_PATH = Path("saved.sav")
 logger = logging.getLogger(__name__)
 
 
-def main() -> None:  # noqa: C901
+def main() -> NoReturn:  # noqa: C901
     """Main entry point."""
     logging.basicConfig(level="DEBUG")
     tileset = tcod.tileset.load_tilesheet("assets/Alloy_curses_12x12.png", 16, 16, tcod.tileset.CHARMAP_CP437)
