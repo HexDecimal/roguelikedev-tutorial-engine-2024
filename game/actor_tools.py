@@ -42,7 +42,7 @@ def update_fov(actor: tcod.ecs.Entity, *, clear: bool = False) -> None:
     now_invisible: Final = old_visible & ~new_visible  # Tiles which have gone out of view, should leave ghosts
     all_visible: Final = old_visible & new_visible  # Tiles visible in old and new FOV, should clear ghosts
 
-    world: Final = actor.world
+    world: Final = actor.registry
     # Remove visible ghosts
     for entity in world.Q.all_of(components=[Position], tags=[IsGhost], relations=[(IsIn, map_)]):
         if all_visible[entity.components[Position].ij]:

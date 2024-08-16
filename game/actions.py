@@ -39,7 +39,7 @@ class Move:
         tile_index = new_position.map.components[Tiles][new_position.ij]
         if TILES["walk_cost"][tile_index] == 0:
             return Impossible(f"""Blocked by {TILES["name"][tile_index]}.""")
-        if entity.world.Q.all_of(tags=[IsActor, new_position]):
+        if entity.registry.Q.all_of(tags=[IsActor, new_position]):
             return Impossible("Something is in the way.")  # Blocked by actor
 
         entity.components[Position] += self.direction
@@ -56,7 +56,7 @@ class Melee:
         """Check and apply the movement."""
         new_position = entity.components[Position] + self.direction
         try:
-            (target,) = entity.world.Q.all_of(tags=[IsActor, new_position])
+            (target,) = entity.registry.Q.all_of(tags=[IsActor, new_position])
         except ValueError:
             return Impossible("Nothing there to attack.")  # No actor at position.
 
@@ -83,7 +83,7 @@ class Bump:
         if self.direction == (0, 0):
             return wait(entity)
         new_position = entity.components[Position] + self.direction
-        if entity.world.Q.all_of(tags=[IsActor, new_position]):
+        if entity.registry.Q.all_of(tags=[IsActor, new_position]):
             return Melee(self.direction)(entity)
         return Move(self.direction)(entity)
 

@@ -71,7 +71,7 @@ class RectangularRoom:
     def iter_random_spaces(self, rng: Random, map_: tcod.ecs.Entity) -> Iterator[Position]:
         """Iterate over floor spaces which do not already have an entity."""
         spaces = list(itertools.product(range(self.x1 + 1, self.x2 - 1), range(self.y1 + 1, self.y2 - 1)))
-        world = map_.world
+        world = map_.registry
         rng.shuffle(spaces)
         for x, y in spaces:
             pos = Position(x, y, map_)
