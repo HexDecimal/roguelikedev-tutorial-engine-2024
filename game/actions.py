@@ -10,13 +10,15 @@ import tcod.ecs  # noqa: TCH002
 from game.action import ActionResult, Impossible, Success
 from game.actor_tools import update_fov
 from game.combat import apply_damage, melee_damage
-from game.components import MapShape, Name, Position, Tiles, VisibleTiles
+from game.components import EquipSlot, MapShape, Name, Position, Tiles, VisibleTiles
 from game.constants import INVENTORY_KEYS
+from game.entity_tools import get_name
 from game.item import ApplyAction
+from game.item_tools import equip_item, unequip_item
 from game.map import MapKey
 from game.map_tools import get_map
 from game.messages import add_message
-from game.tags import IsAlive, IsBlocking, IsIn, IsItem, IsPlayer
+from game.tags import EquippedBy, IsAlive, IsBlocking, IsIn, IsItem, IsPlayer
 from game.tiles import TILES
 from game.travel import path_to
 
@@ -173,9 +175,17 @@ class ApplyItem:
 
     def __call__(self, actor: tcod.ecs.Entity) -> ActionResult:
         """Defer to items apply behavior."""
-        if ApplyAction not in self.item.components:
-            return Impossible(f"""Can not use the {self.item.components.get(Name, "?")}""")
-        return self.item.components[ApplyAction].on_apply(actor, self.item)
+        if EquipSlot in self.item.components:
+            if EquippedBy in self.item.relation_tag:
+                unequip_item(self.item)
+                add_message(actor.registry, f"You unequip the {get_name(self.item)}.")
+            else:
+                equip_item(actor, self.item)
+                add_message(actor.registry, f"You equip the {get_name(self.item)}.")
+            return Success()
+        if ApplyAction in self.item.components:
+            return self.item.components[ApplyAction].on_apply(actor, self.item)
+        return Impossible(f"""Can not use the {get_name(self.item)}""")
 
 
 @attrs.define
@@ -189,6 +199,7 @@ class DropItem:
         item = self.item
         assert item.relation_tag[IsIn] is actor
         add_message(actor.registry, f"""You drop the {item.components.get(Name, "?")}!""")
+        unequip_item(item)
         del item.relation_tag[IsIn]
         item.components[Position] = actor.components[Position]
         return Success()

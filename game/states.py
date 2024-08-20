@@ -22,8 +22,9 @@ from game.action import Action  # noqa: TCH001
 from game.action_tools import do_player_action
 from game.actions import ApplyItem, Bump, DropItem, PickupItem, TakeStairs
 from game.actor_tools import get_player_actor, level_up, required_xp_for_level
-from game.components import HP, XP, Defense, Level, MaxHP, Name, Position, Power
+from game.components import HP, XP, Defense, Level, MaxHP, Position, Power
 from game.constants import DIRECTION_KEYS, INVENTORY_KEYS
+from game.entity_tools import get_name
 from game.messages import add_message
 from game.rendering import main_render
 from game.state import State
@@ -120,9 +121,7 @@ class ItemSelect(State):
                 alignment=tcod.constants.CENTER,
             )
         for i, (item, key_char) in enumerate(zip(self.items, INVENTORY_KEYS, strict=False), start=1):
-            console.print(
-                x=x + 1, y=y + i, string=f"""{key_char}) {item.components.get(Name, "???")}""", fg=(255, 255, 255)
-            )
+            console.print(x=x + 1, y=y + i, string=f"{key_char}) {get_name(item)}", fg=(255, 255, 255))
         footer_rect: dict[str, Any] = {"x": x + 1, "y": y + height - 1, "width": width - 2, "height": 1}
         console.print_box(**footer_rect, string="[a-z] select", fg=(255, 255, 255))
         if self.cancel_callback is not None:

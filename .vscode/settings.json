@@ -38,6 +38,7 @@
         "SHADOWCAST",
         "tcod",
         "tileset",
-        "tilesheet"
+        "tilesheet",
+        "unequip"
     ]
 }

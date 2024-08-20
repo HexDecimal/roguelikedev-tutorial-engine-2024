@@ -24,3 +24,9 @@ IsAlive: Final = "IsAlive"
 
 IsIn: Final = "IsIn"
 """Entity is-in relation."""
+
+EquippedBy: Final = "EquippedBy"
+"""Entity equipped-by relation."""
+
+Affecting: Final = "Affecting"
+"""Entity is-affecting relation."""

@@ -6,16 +6,32 @@ import logging
 
 import tcod.ecs  # noqa: TCH002
 
-from game.components import AI, HP, XP, Defense, Graphic, MaxHP, Name, Power, RewardXP
+from game.components import AI, HP, XP, Defense, DefenseBonus, Graphic, MaxHP, Name, Power, PowerBonus, RewardXP
 from game.messages import add_message
-from game.tags import IsAlive, IsBlocking, IsPlayer
+from game.tags import Affecting, IsAlive, IsBlocking, IsPlayer
 
 logger = logging.getLogger(__name__)
 
 
-def melee_damage(entity: tcod.ecs.Entity, target: tcod.ecs.Entity) -> int:
+def get_attack(actor: tcod.ecs.Entity) -> int:
+    """Get an entities attack power."""
+    attack_power = actor.components.get(Power, 0)
+    for e in actor.registry.Q.all_of(components=[PowerBonus], relations=[(Affecting, actor)]):
+        attack_power += e.components[PowerBonus]
+    return attack_power
+
+
+def get_defense(actor: tcod.ecs.Entity) -> int:
+    """Get an entities defense power."""
+    defense_power = actor.components.get(Defense, 0)
+    for e in actor.registry.Q.all_of(components=[DefenseBonus], relations=[(Affecting, actor)]):
+        defense_power += e.components[DefenseBonus]
+    return defense_power
+
+
+def melee_damage(attacker: tcod.ecs.Entity, target: tcod.ecs.Entity) -> int:
     """Get melee damage for attacking target."""
-    return max(0, entity.components.get(Power, 0) - target.components.get(Defense, 0))
+    return max(0, get_attack(attacker) - get_defense(target))
 
 
 def apply_damage(entity: tcod.ecs.Entity, damage: int, blame: tcod.ecs.Entity) -> None:
