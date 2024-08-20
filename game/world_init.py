@@ -8,7 +8,7 @@ import tcod.ecs
 
 import game.actor_tools
 import game.procgen
-from game.components import HP, Defense, Graphic, MaxHP, Name, Position, Power, RewardXP
+from game.components import HP, Defense, Graphic, MaxHP, Name, Position, Power, RewardXP, SpawnWeight
 from game.effect import Effect
 from game.effects import Healing
 from game.item import ApplyAction
@@ -17,7 +17,7 @@ from game.map_tools import get_map
 from game.messages import MessageLog, add_message
 from game.spell import EntitySpell, PositionSpell
 from game.spells import Fireball, LightningBolt
-from game.tags import IsIn, IsPlayer
+from game.tags import IsActor, IsIn, IsItem, IsPlayer
 
 
 def new_world() -> tcod.ecs.Registry:
@@ -50,40 +50,62 @@ def init_new_creature(
     power: int,
     defense: int,
     xp: int,
+    spawn_weight: tuple[tuple[int, int], ...] = (),
 ) -> None:
     """Setup a new creature type."""
     race = world[name]
+    race.tags.add(IsActor)
     race.components[Name] = name
     race.components[Graphic] = Graphic(ch, fg)
     race.components[HP] = race.components[MaxHP] = hp
     race.components[Power] = power
     race.components[Defense] = defense
     race.components[RewardXP] = xp
+    if spawn_weight:
+        race.components[SpawnWeight] = spawn_weight
 
 
 def init_creatures(world: tcod.ecs.Registry) -> None:
     """Initialize monster database."""
     init_new_creature(world, name="player", ch=ord("@"), fg=(255, 255, 255), hp=30, power=5, defense=2, xp=0)
-    init_new_creature(world, name="orc", ch=ord("o"), fg=(63, 127, 63), hp=10, power=3, defense=0, xp=35)
-    init_new_creature(world, name="troll", ch=ord("T"), fg=(0, 127, 0), hp=16, power=4, defense=1, xp=100)
+    init_new_creature(
+        world, name="orc", ch=ord("o"), fg=(63, 127, 63), hp=10, power=3, defense=0, xp=35, spawn_weight=((1, 80),)
+    )
+    init_new_creature(
+        world,
+        name="troll",
+        ch=ord("T"),
+        fg=(0, 127, 0),
+        hp=16,
+        power=4,
+        defense=1,
+        xp=100,
+        spawn_weight=((3, 15), (5, 30), (7, 60)),
+    )
 
 
 def init_items(world: tcod.ecs.Registry) -> None:
     """Initialize item database."""
     health_potion = world["health_potion"]
+    health_potion.tags.add(IsItem)
     health_potion.components[Name] = "Health Potion"
     health_potion.components[Graphic] = Graphic(ord("!"), (127, 0, 255))
     health_potion.components[Effect] = Healing(4)
     health_potion.components[ApplyAction] = Potion()
+    health_potion.components[SpawnWeight] = ((1, 35),)
 
     lightning_scroll = world["lightning_scroll"]
+    lightning_scroll.tags.add(IsItem)
     lightning_scroll.components[Name] = "Lightning Scroll"
     lightning_scroll.components[Graphic] = Graphic(ord("~"), (255, 255, 0))
     lightning_scroll.components[ApplyAction] = RandomTargetScroll(maximum_range=5)
     lightning_scroll.components[EntitySpell] = LightningBolt(damage=20)
+    lightning_scroll.components[SpawnWeight] = ((3, 25),)
 
     fireball_scroll = world["fireball_scroll"]
+    fireball_scroll.tags.add(IsItem)
     fireball_scroll.components[Name] = "Fireball Scroll"
     fireball_scroll.components[Graphic] = Graphic(ord("~"), (255, 0, 0))
     fireball_scroll.components[ApplyAction] = TargetScroll()
     fireball_scroll.components[PositionSpell] = Fireball(damage=12, radius=3)
+    fireball_scroll.components[SpawnWeight] = ((6, 25),)

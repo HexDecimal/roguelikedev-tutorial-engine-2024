@@ -16,7 +16,7 @@ from game.item import ApplyAction
 from game.map import MapKey
 from game.map_tools import get_map
 from game.messages import add_message
-from game.tags import IsActor, IsIn, IsItem, IsPlayer
+from game.tags import IsAlive, IsBlocking, IsIn, IsItem, IsPlayer
 from game.tiles import TILES
 from game.travel import path_to
 
@@ -39,8 +39,8 @@ class Move:
         tile_index = new_position.map.components[Tiles][new_position.ij]
         if TILES["walk_cost"][tile_index] == 0:
             return Impossible(f"""Blocked by {TILES["name"][tile_index]}.""")
-        if entity.registry.Q.all_of(tags=[IsActor, new_position]):
-            return Impossible("Something is in the way.")  # Blocked by actor
+        if entity.registry.Q.all_of(tags=[IsBlocking, new_position]):
+            return Impossible("Something is in the way.")  # Blocked by entity
 
         entity.components[Position] += self.direction
         return Success()
@@ -56,7 +56,7 @@ class Melee:
         """Check and apply the movement."""
         new_position = entity.components[Position] + self.direction
         try:
-            (target,) = entity.registry.Q.all_of(tags=[IsActor, new_position])
+            (target,) = entity.registry.Q.all_of(tags=[IsAlive, new_position])
         except ValueError:
             return Impossible("Nothing there to attack.")  # No actor at position.
 
@@ -83,7 +83,7 @@ class Bump:
         if self.direction == (0, 0):
             return wait(entity)
         new_position = entity.components[Position] + self.direction
-        if entity.registry.Q.all_of(tags=[IsActor, new_position]):
+        if entity.registry.Q.all_of(tags=[IsAlive, new_position]):
             return Melee(self.direction)(entity)
         return Move(self.direction)(entity)
 

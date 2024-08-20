@@ -11,7 +11,7 @@ import tcod.map
 
 from game.components import XP, Graphic, Level, MemoryTiles, Name, Position, Tiles, VisibleTiles
 from game.messages import add_message
-from game.tags import IsActor, IsGhost, IsIn, IsPlayer
+from game.tags import IsAlive, IsBlocking, IsGhost, IsIn, IsPlayer
 from game.tiles import TILES
 
 
@@ -63,8 +63,9 @@ def update_fov(actor: tcod.ecs.Entity, *, clear: bool = False) -> None:
 def spawn_actor(template: tcod.ecs.Entity, position: Position) -> tcod.ecs.Entity:
     """Spawn a new actor at a location and return the new entity."""
     actor = template.instantiate()
-    actor.tags.add(IsActor)
     actor.components[Position] = position
+    actor.tags.add(IsBlocking)
+    actor.tags.add(IsAlive)
     return actor
 
 

@@ -8,7 +8,7 @@ import tcod.ecs  # noqa: TCH002
 
 from game.components import AI, HP, XP, Defense, Graphic, MaxHP, Name, Power, RewardXP
 from game.messages import add_message
-from game.tags import IsActor, IsPlayer
+from game.tags import IsAlive, IsBlocking, IsPlayer
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,8 @@ def die(entity: tcod.ecs.Entity, blame: tcod.ecs.Entity | None) -> None:
     entity.components[Graphic] = Graphic(ord("%"), (191, 0, 0))
     entity.components[Name] = f"remains of {entity.components[Name]}"
     entity.components.pop(AI, None)
-    entity.tags.remove(IsActor)
+    entity.tags.discard(IsBlocking)
+    entity.tags.discard(IsAlive)
 
 
 def heal(entity: tcod.ecs.Entity, amount: int) -> int:

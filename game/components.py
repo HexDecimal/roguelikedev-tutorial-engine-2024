@@ -95,6 +95,9 @@ XP: Final = ("XP", int)
 RewardXP: Final = ("RewardXP", int)
 """Character experience reward."""
 
+SpawnWeight: Final = ("SpawnWeight", tuple[tuple[int, int], ...])
+"""Spawn rate as `((floor, weight), ...)`."""
+
 
 @tcod.ecs.callbacks.register_component_changed(component=Position)
 def on_position_changed(entity: tcod.ecs.Entity, old: Position | None, new: Position | None) -> None:

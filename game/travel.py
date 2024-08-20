@@ -6,7 +6,7 @@ import tcod.ecs
 import tcod.path
 
 from game.components import Position, Tiles
-from game.tags import IsActor, IsIn
+from game.tags import IsBlocking, IsIn
 from game.tiles import TILES
 
 
@@ -21,7 +21,7 @@ def path_to(actor: tcod.ecs.Entity, dest: Position) -> list[Position]:
     # Copy the walkable array.
     cost = TILES["walk_cost"][map_.components[Tiles]]
 
-    for other in actor.registry.Q.all_of(tags=[IsActor], relations=[(IsIn, map_)]):
+    for other in actor.registry.Q.all_of(tags=[IsBlocking], relations=[(IsIn, map_)]):
         other_pos = other.components[Position]
         # Check that an entity blocks movement and the cost isn't zero (blocking.)
         if cost[other_pos.ij]:

@@ -14,7 +14,7 @@ import g
 from game.actor_tools import get_player_actor, required_xp_for_level
 from game.components import HP, XP, Floor, Graphic, MapShape, MaxHP, MemoryTiles, Name, Position, Tiles, VisibleTiles
 from game.messages import Message, MessageLog
-from game.tags import IsActor, IsGhost, IsIn
+from game.tags import IsAlive, IsGhost, IsIn, IsItem, IsPlayer
 from game.tiles import TILES
 
 from . import color
@@ -75,7 +75,7 @@ def render_names_at_position(console: tcod.console.Console, x: int, y: int, pos:
     console.print(x=x, y=y, string=names, fg=color.white)
 
 
-def main_render(
+def main_render(  # noqa: C901
     world: tcod.ecs.Registry, console: tcod.console.Console, *, highlight: NDArray[np.bool] | None = None
 ) -> None:
     """Main rendering code."""
@@ -93,17 +93,23 @@ def main_render(
 
     console.rgb[console_slices] = TILES["graphic"][np.where(visible, light_tiles, dark_tiles)]
 
-    actor_drawn = set()
+    rendered_priority: dict[Position, int] = {}
     for entity in world.Q.all_of(components=[Position, Graphic], relations=[(IsIn, map_)]):
         pos = entity.components[Position]
         if not (0 <= pos.x < console.width and 0 <= pos.y < console.height):
             continue  # Out of bounds
-        if pos in actor_drawn:
-            continue  # Do not render over an actor
         if visible[pos.ij] == (IsGhost in entity.tags):
             continue
-        if IsActor in entity.tags:
-            actor_drawn.add(pos)
+        render_order = 1
+        if IsItem in entity.tags:
+            render_order = 2
+        if IsAlive in entity.tags:
+            render_order = 3
+        if IsPlayer in entity.tags:
+            render_order = 4
+        if rendered_priority.get(pos, 0) >= render_order:
+            continue  # Do not render over a more important entity
+        rendered_priority[pos] = render_order
         graphic = entity.components[Graphic]
         console.rgb[["ch", "fg"]][pos.ij] = graphic.ch, graphic.fg
 

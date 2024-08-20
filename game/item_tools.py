@@ -5,13 +5,11 @@ from __future__ import annotations
 from tcod.ecs import Entity, IsA
 
 from game.components import Name, Position
-from game.tags import IsItem
 
 
 def spawn_item(template: Entity, position: Position) -> Entity:
     """Spawn an item based on `template` at `position`. Return the spawned entity."""
     item = template.instantiate()
-    item.tags.add(IsItem)
     item.components[Position] = position
     return item
 
