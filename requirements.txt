@@ -2,4 +2,4 @@ attrs
 imageio
 tcod
 tcod-camera
-tcod-ecs>=5.2.2
+tcod-ecs>=5.2.3
