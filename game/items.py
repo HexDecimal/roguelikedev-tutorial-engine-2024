@@ -10,8 +10,10 @@ from tcod.ecs import Entity  # noqa: TCH002
 import game.states
 from game.action import ActionResult, Impossible, Poll, Success
 from game.action_tools import do_player_action
-from game.components import Name, Position, VisibleTiles
+from game.components import Position, VisibleTiles
 from game.effect import Effect
+from game.entity_tools import get_name
+from game.item_tools import consume_item
 from game.messages import add_message
 from game.spell import AreaOfEffect, EntitySpell, PositionSpell
 from game.tags import IsActor, IsIn
@@ -23,10 +25,10 @@ class Potion:
 
     def on_apply(self, actor: Entity, item: Entity) -> ActionResult:
         """Consume the item and apply its effect."""
-        add_message(actor.registry, f"""You consume the {item.components.get(Name, "?")}!""")
+        add_message(actor.registry, f"""You consume the {get_name(item)}!""")
         if Effect in item.components:
             item.components[Effect].affect(actor)
-        item.clear()
+        consume_item(item)
         return Success()
 
 
@@ -54,7 +56,7 @@ class RandomTargetScroll:
 
         result = item.components[EntitySpell].cast_at_entity(actor, item, target)
         if result:
-            item.clear()
+            consume_item(item)
         return result
 
 

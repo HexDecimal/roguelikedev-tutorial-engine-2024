@@ -7,7 +7,7 @@ import logging
 from tcod.ecs import Entity, IsA
 
 from game.action import ActionResult, Impossible, Success
-from game.components import AssignedKey, EquipSlot, Name, Position
+from game.components import AssignedKey, Count, EquipSlot, Name, Position
 from game.constants import INVENTORY_KEYS
 from game.entity_tools import get_name
 from game.item import FullInventoryError
@@ -23,11 +23,11 @@ def spawn_item(template: Entity, position: Position) -> Entity:
     return item
 
 
-def can_stack(entity: Entity, target: Entity, /) -> bool:
+def can_stack(entity: Entity, onto: Entity, /) -> bool:
     """Return True if two entities can be stacked."""
     return bool(
-        entity.components.get(Name) == target.components.get(Name)
-        and entity.relation_tag[IsA] is target.relation_tag[IsA]
+        entity.components.get(Name) == onto.components.get(Name)
+        and entity.relation_tag.get(IsA) is onto.relation_tag.get(IsA)
     )
 
 
@@ -60,10 +60,26 @@ def unequip_item(item: Entity, /) -> None:
     item.relation_tag.pop(Affecting, None)
 
 
+def consume_item(item: Entity) -> None:
+    """Consume an item, delete the item if its stack ie depleted."""
+    item.components.setdefault(Count, 1)
+    item.components[Count] -= 1
+    if item.components[Count] <= 0:
+        item.clear()
+
+
 def add_to_inventory(actor: Entity, item: Entity) -> ActionResult:
     """Add an item to actors inventory."""
     if item.relation_tag.get(IsIn) is actor:
         return Success()  # Already in inventory.
+    for held_item in actor.registry.Q.all_of(tags=[IsItem], relations=[(IsIn, actor)]):
+        if not can_stack(item, held_item):
+            continue
+        held_item.components.setdefault(Count, 1)
+        held_item.components[Count] += item.components.get(Count, 1)
+        msg = f"You picked up the {get_name(item)}!"
+        item.clear()
+        return Success(msg)
     try:
         assign_item_key(actor, item)
     except FullInventoryError:

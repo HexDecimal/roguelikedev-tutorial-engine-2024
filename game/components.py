@@ -110,6 +110,9 @@ DefenseBonus: Final = ("DefenseBonus", int)
 AssignedKey: Final = ("AssignedKey", str)
 """Name of the KeySym for this item."""
 
+Count: Final = ("Count", int)
+"""Stacked item count."""
+
 
 @tcod.ecs.callbacks.register_component_changed(component=Position)
 def on_position_changed(entity: tcod.ecs.Entity, old: Position | None, new: Position | None) -> None:
