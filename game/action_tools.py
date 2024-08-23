@@ -25,7 +25,9 @@ def do_player_action(player: tcod.ecs.Entity, action: Action) -> State:
     result = action(player)
     update_fov(player)
     match result:
-        case Success():
+        case Success(message=message):
+            if message:
+                add_message(player.registry, message)
             handle_enemy_turns(player.registry, player.relation_tag[IsIn])
         case Poll(state=state):
             return state

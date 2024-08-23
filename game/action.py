@@ -14,6 +14,9 @@ from game.state import State  # noqa: TCH001
 class Success:
     """Action was successful."""
 
+    message: str = ""
+    """Message displayed when this result returns."""
+
 
 @attrs.define
 class Poll:

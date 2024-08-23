@@ -107,6 +107,9 @@ PowerBonus: Final = ("PowerBonus", int)
 DefenseBonus: Final = ("DefenseBonus", int)
 """Bonus defense power."""
 
+AssignedKey: Final = ("AssignedKey", str)
+"""Name of the KeySym for this item."""
+
 
 @tcod.ecs.callbacks.register_component_changed(component=Position)
 def on_position_changed(entity: tcod.ecs.Entity, old: Position | None, new: Position | None) -> None:

@@ -11,10 +11,9 @@ from game.action import ActionResult, Impossible, Success
 from game.actor_tools import update_fov
 from game.combat import apply_damage, melee_damage
 from game.components import EquipSlot, MapShape, Name, Position, Tiles, VisibleTiles
-from game.constants import INVENTORY_KEYS
 from game.entity_tools import get_name
 from game.item import ApplyAction
-from game.item_tools import equip_item, unequip_item
+from game.item_tools import add_to_inventory, equip_item, unequip_item
 from game.map import MapKey
 from game.map_tools import get_map
 from game.messages import add_message
@@ -157,14 +156,7 @@ class PickupItem:
             return Impossible("There is nothing here to pick up.")
         item = next(iter(items_here))
 
-        if len(actor.registry.Q.all_of(tags=[IsItem], relations=[(IsIn, actor)]).get_entities()) >= len(INVENTORY_KEYS):
-            return Impossible("Inventory is full.")
-
-        del item.components[Position]
-        item.relation_tag[IsIn] = actor
-
-        add_message(actor.registry, f"""You picked up the {item.components.get(Name, "?")}!""")
-        return Success()
+        return add_to_inventory(actor, item)
 
 
 @attrs.define

@@ -23,12 +23,13 @@ from game.action_tools import do_player_action
 from game.actions import ApplyItem, Bump, DropItem, PickupItem, TakeStairs
 from game.actor_tools import get_player_actor, level_up, required_xp_for_level
 from game.components import HP, XP, Defense, Level, MaxHP, Position, Power
-from game.constants import DIRECTION_KEYS, INVENTORY_KEYS
+from game.constants import DIRECTION_KEYS
 from game.entity_tools import get_name
+from game.item_tools import get_inventory_keys
 from game.messages import add_message
 from game.rendering import main_render
 from game.state import State
-from game.tags import IsIn, IsItem, IsPlayer
+from game.tags import IsPlayer
 
 
 @attrs.define
@@ -72,7 +73,7 @@ class InGame(State):
 class ItemSelect(State):
     """Item selection interface."""
 
-    items: list[Entity]
+    items: dict[KeySym, Entity]
     title: str = "Select an item"
 
     pick_callback: Callable[[Entity], State]
@@ -83,7 +84,7 @@ class ItemSelect(State):
         """Initialize a common player verb on item menu."""
         return cls(
             title=f"Select an item to {verb}",
-            items=list(g.world.Q.all_of(tags=[IsItem], relations=[(IsIn, player)])),
+            items={KeySym[k]: v for k, v in sorted(get_inventory_keys(player).items())},
             pick_callback=lambda item: do_player_action(player, action(item)),
             cancel_callback=InGame,
         )
@@ -91,10 +92,8 @@ class ItemSelect(State):
     def on_event(self, event: tcod.event.Event) -> State:
         """Handle item selection."""
         match event:
-            case tcod.event.KeyDown(sym=sym) if sym in {ord(c) for c in INVENTORY_KEYS}:
-                index = INVENTORY_KEYS.index(chr(sym))
-                if index < len(self.items):
-                    return self.pick_callback(self.items[index])
+            case tcod.event.KeyDown(sym=sym) if sym in self.items:
+                return self.pick_callback(self.items[sym])
             case tcod.event.KeyDown(sym=KeySym.ESCAPE) if self.cancel_callback is not None:
                 return self.cancel_callback()
         return self
@@ -120,7 +119,8 @@ class ItemSelect(State):
                 bg=(255, 255, 255),
                 alignment=tcod.constants.CENTER,
             )
-        for i, (item, key_char) in enumerate(zip(self.items, INVENTORY_KEYS, strict=False), start=1):
+        for i, (sym, item) in enumerate(self.items.items(), start=1):
+            key_char = sym.name
             console.print(x=x + 1, y=y + i, string=f"{key_char}) {get_name(item)}", fg=(255, 255, 255))
         footer_rect: dict[str, Any] = {"x": x + 1, "y": y + height - 1, "width": width - 2, "height": 1}
         console.print_box(**footer_rect, string="[a-z] select", fg=(255, 255, 255))

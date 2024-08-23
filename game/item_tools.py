@@ -6,8 +6,12 @@ import logging
 
 from tcod.ecs import Entity, IsA
 
-from game.components import EquipSlot, Name, Position
-from game.tags import Affecting, EquippedBy, IsActor, IsIn
+from game.action import ActionResult, Impossible, Success
+from game.components import AssignedKey, EquipSlot, Name, Position
+from game.constants import INVENTORY_KEYS
+from game.entity_tools import get_name
+from game.item import FullInventoryError
+from game.tags import Affecting, EquippedBy, IsActor, IsIn, IsItem
 
 logger = logging.getLogger(__name__)
 
@@ -27,13 +31,15 @@ def can_stack(entity: Entity, target: Entity, /) -> bool:
     )
 
 
-def equip_item(actor: Entity, item: Entity, /) -> None:
+def equip_item(actor: Entity, item: Entity, /) -> ActionResult:
     """Equip an item on an actor."""
     unequip_slot(actor, item.components[EquipSlot])
-    item.relation_tag[IsIn] = actor
+    if not (result := add_to_inventory(actor, item)):
+        return result
     item.relation_tag[EquippedBy] = actor
     item.relation_tag[Affecting] = actor
     item.components.pop(Position, None)
+    return Success()
 
 
 def unequip_slot(actor: Entity, slot: object, /) -> None:
@@ -52,3 +58,37 @@ def unequip_item(item: Entity, /) -> None:
 
     item.relation_tag.pop(EquippedBy, None)
     item.relation_tag.pop(Affecting, None)
+
+
+def add_to_inventory(actor: Entity, item: Entity) -> ActionResult:
+    """Add an item to actors inventory."""
+    if item.relation_tag.get(IsIn) is actor:
+        return Success()  # Already in inventory.
+    try:
+        assign_item_key(actor, item)
+    except FullInventoryError:
+        return Impossible("Inventory is full.")
+
+    item.components.pop(Position, None)
+    item.relation_tag[IsIn] = actor
+
+    return Success(f"You picked up the {get_name(item)}!")
+
+
+def get_inventory_keys(actor: Entity) -> dict[str, Entity]:
+    """Return a {key: item} dict of an actors inventory."""
+    return {e.components[AssignedKey]: e for e in actor.registry.Q.all_of(tags=[IsItem], relations=[(IsIn, actor)])}
+
+
+def assign_item_key(actor: Entity, item: Entity) -> None:
+    """Assign a free key to an item. Raise FullInventoryError if no key is available.
+
+    Should be called before adding the item to the inventory.
+    """
+    inventory = get_inventory_keys(actor)
+    for key in INVENTORY_KEYS:
+        if key in inventory:
+            continue
+        item.components[AssignedKey] = key
+        return
+    raise FullInventoryError
