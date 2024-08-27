@@ -28,6 +28,7 @@ ignore = [
     "ANN102",  # missing-type-cls
     "COM",     # flake8-commas
     "E501",    # line-too-long
+    "ISC001",  # single-line-implicit-string-concatenation
     "PLR0913", # too-many-arguments
     "S101",    # assert
     "S311",    # suspicious-non-cryptographic-random-usage

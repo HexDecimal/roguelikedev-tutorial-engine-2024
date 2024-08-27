@@ -12,6 +12,9 @@
     "[python]": {
         "editor.defaultFormatter": "charliermarsh.ruff"
     },
+    "files.associations": {
+        "*.spec": "python"
+    },
     "python.analysis.typeCheckingMode": "standard",
     "cSpell.words": [
         "autoupdate",
