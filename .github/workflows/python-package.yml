@@ -45,7 +45,7 @@ jobs:
           echo "Archive name set to: $ARCHIVE_NAME"
           echo "archive-name=$ARCHIVE_NAME" >> $GITHUB_ENV
       - name: Set up Python ${{ env.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.python-version }}
           architecture: ${{ matrix.architecture }}
@@ -55,7 +55,7 @@ jobs:
           python -m pip install PyInstaller==${{ env.pyinstaller-version }} -r requirements.txt
       - name: Run PyInstaller
         env:
-          PYTHONOPTIMIZE: 2 # Enable optimizations as if the -O flag is given.
+          PYTHONOPTIMIZE: 1 # Enable optimizations as if the -O flag is given.
           PYTHONHASHSEED: 0 # Try to ensure deterministic results.
         run: |
           pyinstaller build.spec

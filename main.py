@@ -26,13 +26,16 @@ TITLE = "Yet Another Roguelike Tutorial"
 CONSOLE_SIZE = 80, 50
 SAVE_PATH = Path("saved.sav")
 
+ASSETS_DIR = Path(__file__) / "../assets"
+TILESET = ASSETS_DIR / "Alloy_curses_12x12.png"
+
 logger = logging.getLogger(__name__)
 
 
 def main() -> NoReturn:  # noqa: C901
     """Main entry point."""
     logging.basicConfig(level="DEBUG")
-    tileset = tcod.tileset.load_tilesheet("assets/Alloy_curses_12x12.png", 16, 16, tcod.tileset.CHARMAP_CP437)
+    tileset = tcod.tileset.load_tilesheet(TILESET, 16, 16, tcod.tileset.CHARMAP_CP437)
     g.console = tcod.console.Console(*CONSOLE_SIZE)
 
     g.state = game.states.MainMenu()

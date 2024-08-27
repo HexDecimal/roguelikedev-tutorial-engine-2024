@@ -13,7 +13,7 @@ a = Analysis(  # type: ignore[name-defined]
     runtime_hooks=[],
     excludes=[],
     noarchive=False,
-    optimize=2,
+    optimize=1,
 )
 pyz = PYZ(a.pure)  # type: ignore[name-defined]
 
@@ -33,7 +33,6 @@ exe = EXE(  # type: ignore[name-defined]
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    manifest="trace",
     icon=["icon.ico"],  # Windows icon file
 )
 coll = COLLECT(  # type: ignore[name-defined]
