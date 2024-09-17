@@ -26,7 +26,7 @@ TITLE = "Yet Another Roguelike Tutorial"
 CONSOLE_SIZE = 80, 50
 SAVE_PATH = Path("saved.sav")
 
-ASSETS_DIR = Path(__file__) / "../assets"
+ASSETS_DIR = Path(__file__, "../assets")
 TILESET = ASSETS_DIR / "Alloy_curses_12x12.png"
 
 logger = logging.getLogger(__name__)
