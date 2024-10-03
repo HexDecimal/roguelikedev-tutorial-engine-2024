@@ -103,56 +103,56 @@ def init_creatures(world: tcod.ecs.Registry) -> None:
 
 def init_items(world: tcod.ecs.Registry) -> None:
     """Initialize item database."""
-    health_potion = world["health_potion"]
-    health_potion.tags.add(IsItem)
-    health_potion.components[Name] = "Health Potion"
-    health_potion.components[Graphic] = Graphic(ord("!"), (127, 0, 255))
-    health_potion.components[Effect] = Healing(4)
-    health_potion.components[ApplyAction] = Potion()
-    health_potion.components[SpawnWeight] = ((1, 35),)
+    entity = world["health_potion"]
+    entity.tags.add(IsItem)
+    entity.components[Name] = "Health Potion"
+    entity.components[Graphic] = Graphic(ord("!"), (127, 0, 255))
+    entity.components[Effect] = Healing(4)
+    entity.components[ApplyAction] = Potion()
+    entity.components[SpawnWeight] = ((1, 35),)
 
-    lightning_scroll = world["lightning_scroll"]
-    lightning_scroll.tags.add(IsItem)
-    lightning_scroll.components[Name] = "Lightning Scroll"
-    lightning_scroll.components[Graphic] = Graphic(ord("~"), (255, 255, 0))
-    lightning_scroll.components[ApplyAction] = RandomTargetScroll(maximum_range=5)
-    lightning_scroll.components[EntitySpell] = LightningBolt(damage=20)
-    lightning_scroll.components[SpawnWeight] = ((3, 25),)
+    entity = world["lightning_scroll"]
+    entity.tags.add(IsItem)
+    entity.components[Name] = "Lightning Scroll"
+    entity.components[Graphic] = Graphic(ord("~"), (255, 255, 0))
+    entity.components[ApplyAction] = RandomTargetScroll(maximum_range=5)
+    entity.components[EntitySpell] = LightningBolt(damage=20)
+    entity.components[SpawnWeight] = ((3, 25),)
 
-    fireball_scroll = world["fireball_scroll"]
-    fireball_scroll.tags.add(IsItem)
-    fireball_scroll.components[Name] = "Fireball Scroll"
-    fireball_scroll.components[Graphic] = Graphic(ord("~"), (255, 0, 0))
-    fireball_scroll.components[ApplyAction] = TargetScroll()
-    fireball_scroll.components[PositionSpell] = Fireball(damage=12, radius=3)
-    fireball_scroll.components[SpawnWeight] = ((6, 25),)
+    entity = world["fireball_scroll"]
+    entity.tags.add(IsItem)
+    entity.components[Name] = "Fireball Scroll"
+    entity.components[Graphic] = Graphic(ord("~"), (255, 0, 0))
+    entity.components[ApplyAction] = TargetScroll()
+    entity.components[PositionSpell] = Fireball(damage=12, radius=3)
+    entity.components[SpawnWeight] = ((6, 25),)
 
-    dagger = world["dagger"]
-    dagger.tags.add(IsItem)
-    dagger.components[Name] = "Dagger"
-    dagger.components[Graphic] = Graphic(ord("/"), (0, 191, 255))
-    dagger.components[PowerBonus] = 2
-    dagger.components[EquipSlot] = "weapon"
+    entity = world["dagger"]
+    entity.tags.add(IsItem)
+    entity.components[Name] = "Dagger"
+    entity.components[Graphic] = Graphic(ord("/"), (0, 191, 255))
+    entity.components[PowerBonus] = 2
+    entity.components[EquipSlot] = "weapon"
 
-    sword = world["sword"]
-    sword.tags.add(IsItem)
-    sword.components[Name] = "Sword"
-    sword.components[Graphic] = Graphic(ord("/"), (0, 191, 255))
-    sword.components[PowerBonus] = 4
-    sword.components[SpawnWeight] = ((4, 5),)
-    sword.components[EquipSlot] = "weapon"
+    entity = world["sword"]
+    entity.tags.add(IsItem)
+    entity.components[Name] = "Sword"
+    entity.components[Graphic] = Graphic(ord("/"), (0, 191, 255))
+    entity.components[PowerBonus] = 4
+    entity.components[SpawnWeight] = ((4, 5),)
+    entity.components[EquipSlot] = "weapon"
 
-    leather_armor = world["leather_armor"]
-    leather_armor.tags.add(IsItem)
-    leather_armor.components[Name] = "Leather Armor"
-    leather_armor.components[Graphic] = Graphic(ord("["), (139, 69, 19))
-    leather_armor.components[DefenseBonus] = 1
-    leather_armor.components[EquipSlot] = "armor"
+    entity = world["leather_armor"]
+    entity.tags.add(IsItem)
+    entity.components[Name] = "Leather Armor"
+    entity.components[Graphic] = Graphic(ord("["), (139, 69, 19))
+    entity.components[DefenseBonus] = 1
+    entity.components[EquipSlot] = "armor"
 
-    chain_mail = world["chain_mail"]
-    chain_mail.tags.add(IsItem)
-    chain_mail.components[Name] = "Chain Mail"
-    chain_mail.components[Graphic] = Graphic(ord("["), (139, 69, 19))
-    chain_mail.components[DefenseBonus] = 3
-    chain_mail.components[SpawnWeight] = ((6, 15),)
-    chain_mail.components[EquipSlot] = "armor"
+    entity = world["chain_mail"]
+    entity.tags.add(IsItem)
+    entity.components[Name] = "Chain Mail"
+    entity.components[Graphic] = Graphic(ord("["), (139, 69, 19))
+    entity.components[DefenseBonus] = 3
+    entity.components[SpawnWeight] = ((6, 15),)
+    entity.components[EquipSlot] = "armor"
