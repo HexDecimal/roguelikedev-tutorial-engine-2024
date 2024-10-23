@@ -30,7 +30,7 @@ from game.items import Potion, RandomTargetScroll, TargetScroll
 from game.map_tools import get_map
 from game.messages import MessageLog, add_message
 from game.spell import EntitySpell, PositionSpell
-from game.spells import Fireball, LightningBolt
+from game.spells import Fireball, LightningBolt, Polymorph
 from game.tags import IsActor, IsIn, IsItem, IsPlayer
 
 
@@ -101,7 +101,7 @@ def init_creatures(world: tcod.ecs.Registry) -> None:
     )
 
 
-def init_items(world: tcod.ecs.Registry) -> None:
+def init_items(world: tcod.ecs.Registry) -> None:  # noqa: PLR0915
     """Initialize item database."""
     entity = world["health_potion"]
     entity.tags.add(IsItem)
@@ -110,6 +110,14 @@ def init_items(world: tcod.ecs.Registry) -> None:
     entity.components[Effect] = Healing(4)
     entity.components[ApplyAction] = Potion()
     entity.components[SpawnWeight] = ((1, 35),)
+
+    entity = world["poly_potion"]
+    entity.tags.add(IsItem)
+    entity.components[Name] = "Potion of Polymorph"
+    entity.components[Graphic] = Graphic(ord("!"), (255, 255, 127))
+    entity.components[ApplyAction] = Potion()
+    entity.components[EntitySpell] = Polymorph()
+    entity.components[SpawnWeight] = ((1, 10),)
 
     entity = world["lightning_scroll"]
     entity.tags.add(IsItem)
