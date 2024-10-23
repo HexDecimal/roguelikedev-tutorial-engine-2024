@@ -2,16 +2,19 @@
 
 from __future__ import annotations
 
+from random import Random
+
 import attrs
 import numpy as np
 import tcod.constants
 import tcod.map
 from numpy.typing import NDArray  # noqa: TCH002
-from tcod.ecs import Entity  # noqa: TCH002
+from tcod.ecs import Entity, IsA
 
 from game.action import ActionResult, Success
 from game.combat import apply_damage
 from game.components import HP, MapShape, MemoryTiles, Name, Position, Tiles, VisibleTiles
+from game.entity_tools import get_name
 from game.messages import add_message
 from game.tags import IsActor, IsIn
 from game.tiles import TILES
@@ -30,6 +33,26 @@ class LightningBolt:
             f"A lighting bolt strikes the {target.components.get(Name)} with a loud thunder, for {self.damage} damage!",
         )
         apply_damage(target, self.damage, blame=castor)
+        return Success()
+
+
+@attrs.define
+class Polymorph:
+    """Polymorph spell."""
+
+    def cast_at_entity(self, castor: Entity, _item: Entity | None, target: Entity) -> ActionResult:
+        """Polymorph target."""
+        races = target.registry.Q.all_of(tags=[IsActor], depth=1).none_of(relations=[(IsA, ...)]).get_entities()
+        races -= {target.relation_tag[IsA]}
+        new_race = target.registry[None].components[Random].choice(list(races))
+
+        add_message(
+            castor.registry,
+            f"{get_name(target)} transforms into a {get_name(new_race)}!",
+        )
+
+        target.components.pop(HP)
+        target.relation_tag[IsA] = new_race
         return Success()
 
 

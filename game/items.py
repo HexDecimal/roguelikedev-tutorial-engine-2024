@@ -28,6 +28,8 @@ class Potion:
         add_message(actor.registry, f"""You consume the {get_name(item)}!""")
         if Effect in item.components:
             item.components[Effect].affect(actor)
+        if EntitySpell in item.components:
+            item.components[EntitySpell].cast_at_entity(actor, item, actor)
         consume_item(item)
         return Success()
 
