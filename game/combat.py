@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 
-import tcod.ecs  # noqa: TCH002
+import tcod.ecs  # noqa: TC002
 
 from game.components import AI, HP, XP, Defense, DefenseBonus, Graphic, MaxHP, Name, Power, PowerBonus, RewardXP
 from game.messages import add_message

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import attrs
-from tcod.ecs import Entity  # noqa: TCH002
+from tcod.ecs import Entity  # noqa: TC002
 
 from game.combat import heal
 from game.components import Name

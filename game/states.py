@@ -6,19 +6,19 @@ from collections.abc import Callable
 from typing import Any, Self
 
 import attrs
-import numpy as np  # noqa: TCH002
+import numpy as np  # noqa: TC002
 import tcod.console
 import tcod.constants
 import tcod.event
-from numpy.typing import NDArray  # noqa: TCH002
+from numpy.typing import NDArray  # noqa: TC002
 from tcod import libtcodpy
-from tcod.ecs import Entity  # noqa: TCH002
+from tcod.ecs import Entity  # noqa: TC002
 from tcod.event import KeySym, Modifier, Scancode
 
 import g
 import game.color
 import game.world_init
-from game.action import Action  # noqa: TCH001
+from game.action import Action  # noqa: TC001
 from game.action_tools import do_player_action
 from game.actions import ApplyItem, Bump, DropItem, PickupItem, TakeStairs
 from game.actor_tools import get_player_actor, level_up, required_xp_for_level
@@ -160,8 +160,7 @@ class PositionSelect:
             case tcod.event.MouseMotion(position=position):
                 g.world["cursor"].components[Position] = g.world["cursor"].components[Position].replace(*position)
             case (
-                tcod.event.KeyDown(sym=KeySym.ESCAPE)
-                | tcod.event.MouseButtonDown(button=tcod.event.MouseButton.RIGHT)
+                tcod.event.KeyDown(sym=KeySym.ESCAPE) | tcod.event.MouseButtonDown(button=tcod.event.MouseButton.RIGHT)
             ) if self.cancel_callback is not None:
                 g.world["cursor"].clear()
                 return self.cancel_callback()

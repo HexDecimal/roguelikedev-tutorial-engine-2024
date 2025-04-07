@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Final, Literal, Self
 
 import attrs
-import tcod.ecs  # noqa: TCH002
+import tcod.ecs  # noqa: TC002
 
 from game.action import ActionResult, Impossible, Success
 from game.actor_tools import update_fov

@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Protocol
 
 import tcod.console
-import tcod.event  # noqa: TCH002
+import tcod.event  # noqa: TC002
 
 
 class State(Protocol):

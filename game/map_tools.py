@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import numpy as np
-import tcod.ecs  # noqa: TCH002
+import tcod.ecs  # noqa: TC002
 
 from game.components import MapShape, MemoryTiles, Tiles, VisibleTiles
-from game.map import MapKey  # noqa: TCH001
+from game.map import MapKey  # noqa: TC001
 
 
 def new_map(world: tcod.ecs.World, shape: tuple[int, int]) -> tcod.ecs.Entity:

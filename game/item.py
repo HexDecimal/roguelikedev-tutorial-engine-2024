@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from tcod.ecs import Entity  # noqa: TCH002
+from tcod.ecs import Entity  # noqa: TC002
 
-from game.action import ActionResult  # noqa: TCH001
+from game.action import ActionResult  # noqa: TC001
 
 
 class ApplyAction(Protocol):

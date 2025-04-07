@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from tcod.ecs import Entity  # noqa: TCH002
+from tcod.ecs import Entity  # noqa: TC002
 
 
 class Effect(Protocol):
