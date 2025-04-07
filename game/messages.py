@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Final
 
 import attrs
-import tcod.ecs  # noqa: TCH002
+import tcod.ecs  # noqa: TC002
 
 from . import color
 

@@ -6,8 +6,8 @@ import attrs
 import numpy as np
 import tcod.constants
 import tcod.map
-from numpy.typing import NDArray  # noqa: TCH002
-from tcod.ecs import Entity  # noqa: TCH002
+from numpy.typing import NDArray  # noqa: TC002
+from tcod.ecs import Entity  # noqa: TC002
 
 from game.action import ActionResult, Success
 from game.combat import apply_damage

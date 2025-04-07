@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from tcod.ecs import Entity  # noqa: TCH002
+from tcod.ecs import Entity  # noqa: TC002
 
 from game.components import Count, Name
 from game.tags import EquippedBy

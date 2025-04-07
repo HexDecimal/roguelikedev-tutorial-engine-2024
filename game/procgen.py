@@ -12,7 +12,7 @@ import attrs
 import numpy as np
 import tcod.ecs
 import tcod.los
-from numpy.typing import NDArray  # noqa: TCH002
+from numpy.typing import NDArray  # noqa: TC002
 
 import game.map_tools
 from game.actions import HostileAI

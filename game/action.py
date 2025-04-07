@@ -5,9 +5,9 @@ from __future__ import annotations
 from typing import Protocol, TypeAlias
 
 import attrs
-from tcod.ecs import Entity  # noqa: TCH002
+from tcod.ecs import Entity  # noqa: TC002
 
-from game.state import State  # noqa: TCH001
+from game.state import State  # noqa: TC001
 
 
 @attrs.define

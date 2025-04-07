@@ -8,7 +8,7 @@ import numpy as np
 import tcod.camera
 import tcod.console
 import tcod.ecs
-from numpy.typing import NDArray  # noqa: TCH002
+from numpy.typing import NDArray  # noqa: TC002
 
 import g
 from game.actor_tools import get_player_actor, required_xp_for_level

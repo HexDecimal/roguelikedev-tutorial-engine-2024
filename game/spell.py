@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
-import numpy as np  # noqa: TCH002
-from numpy.typing import NDArray  # noqa: TCH002
-from tcod.ecs import Entity  # noqa: TCH002
+import numpy as np  # noqa: TC002
+from numpy.typing import NDArray  # noqa: TC002
+from tcod.ecs import Entity  # noqa: TC002
 
-from game.action import ActionResult  # noqa: TCH001
-from game.components import Position  # noqa: TCH001
+from game.action import ActionResult  # noqa: TC001
+from game.components import Position  # noqa: TC001
 
 
 @runtime_checkable

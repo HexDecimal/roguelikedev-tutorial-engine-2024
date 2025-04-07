@@ -5,7 +5,7 @@ from __future__ import annotations
 import functools
 
 import attrs
-from tcod.ecs import Entity  # noqa: TCH002
+from tcod.ecs import Entity  # noqa: TC002
 
 import game.states
 from game.action import ActionResult, Impossible, Poll, Success
