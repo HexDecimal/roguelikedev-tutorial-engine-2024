@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Final, NamedTuple, Self
+from typing import Any, Final, NamedTuple, Self
 
 import attrs
 import numpy as np
@@ -126,3 +126,12 @@ def on_position_changed(entity: tcod.ecs.Entity, old: Position | None, new: Posi
         entity.relation_tag[IsIn] = new.map
     else:
         del entity.relation_tags_many[IsIn]
+
+
+COMPONENT_MIGRATIONS = (
+    # Handle minor type changes in NumPy, keeps save compatibility with first release
+    (("Tiles", np.ndarray[Any, np.dtype[np.int8]]), Tiles),
+    (("VisibleTiles", np.ndarray[Any, np.dtype[np.bool]]), VisibleTiles),
+    (("MemoryTiles", np.ndarray[Any, np.dtype[np.int8]]), MemoryTiles),
+)
+"""Move component values to new keys using `(old_key, new_key)`."""

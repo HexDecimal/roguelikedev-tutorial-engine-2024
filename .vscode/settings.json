@@ -30,6 +30,7 @@
         "isort",
         "libtcodpy",
         "mgrid",
+        "ndarray",
         "NONUSBACKSLASH",
         "PAGEDOWN",
         "PAGEUP",

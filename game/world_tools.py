@@ -10,6 +10,7 @@ from pathlib import Path
 import tcod.ecs
 
 import game.world_init
+from game.components import COMPONENT_MIGRATIONS
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,11 @@ def load_world(path: Path) -> tcod.ecs.Registry:
     data = lzma.decompress(data)
     world = pickle.loads(data)  # noqa: S301
     assert isinstance(world, tcod.ecs.Registry)
+
+    for old_component, new_component in COMPONENT_MIGRATIONS:
+        for e in list(world.Q.all_of(components=[old_component])):
+            e.components[new_component] = e.components.pop(old_component)
+
     game.world_init.init_creatures(world)
     game.world_init.init_items(world)
     return world

@@ -72,7 +72,7 @@ def render_names_at_position(console: tcod.console.Console, x: int, y: int, pos:
         if is_visible or (IsGhost in entity.tags)
     ]
     names = ", ".join(entity.components[Name] for entity in known_entities)
-    console.print(x=x, y=y, string=names, fg=color.white)
+    console.print(x=x, y=y, text=names, fg=color.white)
 
 
 def main_render(  # noqa: C901
@@ -147,7 +147,7 @@ def main_render(  # noqa: C901
         empty_color=color.bar_xp_empty,
         full_color=color.bar_xp_filled,
     )
-    console.print(x=0, y=47, string=f""" Dungeon level: {map_.components.get(Floor, "?")}""", fg=(255, 255, 255))
+    console.print(x=0, y=47, text=f""" Dungeon level: {map_.components.get(Floor, "?")}""", fg=(255, 255, 255))
     render_messages(world, width=40, height=5).blit(dest=console, dest_x=21, dest_y=45)
     if g.cursor_location:
         render_names_at_position(console, x=21, y=44, pos=Position(*g.cursor_location, map_))

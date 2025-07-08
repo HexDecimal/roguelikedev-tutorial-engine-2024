@@ -59,7 +59,7 @@ def main() -> NoReturn:  # noqa: C901
                         case tcod.event.Quit():
                             raise SystemExit
                         case tcod.event.MouseMotion(position=position):
-                            g.cursor_location = position
+                            g.cursor_location = int(position.x), int(position.y)
                         case tcod.event.WindowEvent(type="WindowLeave"):
                             g.cursor_location = None
                         case tcod.event.KeyDown(sym=tcod.event.KeySym.PRINTSCREEN):

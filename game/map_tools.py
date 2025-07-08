@@ -9,7 +9,7 @@ from game.components import MapShape, MemoryTiles, Tiles, VisibleTiles
 from game.map import MapKey  # noqa: TC001
 
 
-def new_map(world: tcod.ecs.World, shape: tuple[int, int]) -> tcod.ecs.Entity:
+def new_map(world: tcod.ecs.Registry, shape: tuple[int, int]) -> tcod.ecs.Entity:
     """Return a new blank map."""
     map_ = world[object()]
     map_.components[MapShape] = MapShape(*shape)
@@ -20,7 +20,7 @@ def new_map(world: tcod.ecs.World, shape: tuple[int, int]) -> tcod.ecs.Entity:
     return map_
 
 
-def get_map(world: tcod.ecs.World, key: MapKey) -> tcod.ecs.Entity:
+def get_map(world: tcod.ecs.Registry, key: MapKey) -> tcod.ecs.Entity:
     """Get a map, generating it on demand."""
     query = world.Q.all_of(tags=[key])
     if query:

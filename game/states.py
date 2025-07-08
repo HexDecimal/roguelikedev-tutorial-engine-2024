@@ -42,13 +42,13 @@ class InGame(State):
         match event:
             case tcod.event.KeyDown(sym=KeySym.ESCAPE):
                 return MainMenu()
-            case tcod.event.KeyDown(sym=KeySym.c):
+            case tcod.event.KeyDown(sym=KeySym.C):
                 return CharacterScreen()
-            case tcod.event.KeyDown(sym=KeySym.g):
+            case tcod.event.KeyDown(sym=KeySym.G):
                 return do_player_action(player, PickupItem())
-            case tcod.event.KeyDown(sym=KeySym.i):
+            case tcod.event.KeyDown(sym=KeySym.I):
                 return ItemSelect.player_verb(player, "use", ApplyItem)
-            case tcod.event.KeyDown(sym=KeySym.d):
+            case tcod.event.KeyDown(sym=KeySym.D):
                 return ItemSelect.player_verb(player, "drop", DropItem)
             case tcod.event.KeyDown(sym=KeySym.SLASH):
                 return PositionSelect.init_look()
@@ -121,11 +121,11 @@ class ItemSelect(State):
             )
         for i, (sym, item) in enumerate(self.items.items(), start=1):
             key_char = sym.name
-            console.print(x=x + 1, y=y + i, string=f"{key_char}) {get_desc(item)}", fg=(255, 255, 255))
+            console.print(x=x + 1, y=y + i, text=f"{key_char}) {get_desc(item)}", fg=(255, 255, 255))
         footer_rect: dict[str, Any] = {"x": x + 1, "y": y + height - 1, "width": width - 2, "height": 1}
-        console.print_box(**footer_rect, string="[a-z] select", fg=(255, 255, 255))
+        console.print(**footer_rect, text="[a-z] select", fg=(255, 255, 255))
         if self.cancel_callback is not None:
-            console.print_box(**footer_rect, string="[esc] cancel", fg=(255, 255, 255), alignment=tcod.constants.RIGHT)
+            console.print(**footer_rect, text="[esc] cancel", fg=(255, 255, 255), alignment=tcod.constants.RIGHT)
 
 
 @attrs.define(kw_only=True)
@@ -158,7 +158,9 @@ class PositionSelect:
                 finally:
                     g.world["cursor"].clear()
             case tcod.event.MouseMotion(position=position):
-                g.world["cursor"].components[Position] = g.world["cursor"].components[Position].replace(*position)
+                g.world["cursor"].components[Position] = (
+                    g.world["cursor"].components[Position].replace(int(position.x), int(position.y))
+                )
             case (
                 tcod.event.KeyDown(sym=KeySym.ESCAPE) | tcod.event.MouseButtonDown(button=tcod.event.MouseButton.RIGHT)
             ) if self.cancel_callback is not None:
@@ -179,12 +181,12 @@ class MainMenu:
     def on_event(self, event: tcod.event.Event) -> State:
         """Handle menu keys."""
         match event:
-            case tcod.event.KeyDown(sym=KeySym.q):
+            case tcod.event.KeyDown(sym=KeySym.Q):
                 raise SystemExit
-            case tcod.event.KeyDown(sym=KeySym.c | KeySym.ESCAPE):
+            case tcod.event.KeyDown(sym=KeySym.C | KeySym.ESCAPE):
                 if hasattr(g, "world"):
                     return InGame()
-            case tcod.event.KeyDown(sym=KeySym.n):
+            case tcod.event.KeyDown(sym=KeySym.N):
                 g.world = game.world_init.new_world()
                 return InGame()
 
@@ -249,23 +251,23 @@ class LevelUp:
             bg=(0, 0, 0),
         )
 
-        console.print(x=x + 1, y=y + 1, string="Congratulations! You level up!")
-        console.print(x=x + 1, y=y + 2, string="Select an attribute to increase.")
+        console.print(x=x + 1, y=y + 1, text="Congratulations! You level up!")
+        console.print(x=x + 1, y=y + 2, text="Select an attribute to increase.")
 
         console.print(
             x=x + 1,
             y=y + 4,
-            string=f"a) Constitution (+20 HP, from {player.components[MaxHP]})",
+            text=f"a) Constitution (+20 HP, from {player.components[MaxHP]})",
         )
         console.print(
             x=x + 1,
             y=y + 5,
-            string=f"b) Strength (+1 attack, from {player.components[Power]})",
+            text=f"b) Strength (+1 attack, from {player.components[Power]})",
         )
         console.print(
             x=x + 1,
             y=y + 6,
-            string=f"c) Agility (+1 defense, from {player.components[Defense]})",
+            text=f"c) Agility (+1 defense, from {player.components[Defense]})",
         )
 
     def on_event(self, event: tcod.event.Event) -> State:
@@ -273,18 +275,18 @@ class LevelUp:
         player = get_player_actor(g.world)
 
         match event:
-            case tcod.event.KeyDown(sym=KeySym.a):
+            case tcod.event.KeyDown(sym=KeySym.A):
                 player.components[MaxHP] += 20
                 player.components[HP] += 20
                 level_up(player)
                 add_message(g.world, "Your health improves!")
                 return InGame()
-            case tcod.event.KeyDown(sym=KeySym.b):
+            case tcod.event.KeyDown(sym=KeySym.B):
                 player.components[Power] += 1
                 level_up(player)
                 add_message(g.world, "You feel stronger!")
                 return InGame()
-            case tcod.event.KeyDown(sym=KeySym.c):
+            case tcod.event.KeyDown(sym=KeySym.C):
                 player.components[Defense] += 1
                 level_up(player)
                 add_message(g.world, "Your movements are getting swifter!")
@@ -324,16 +326,16 @@ class CharacterScreen:
             bg=(0, 0, 0),
         )
 
-        console.print(x=x + 1, y=y + 1, string=f"Level: {player.components.get(Level, 1)}")
-        console.print(x=x + 1, y=y + 2, string=f"XP: {player.components.get(XP, 0)}")
+        console.print(x=x + 1, y=y + 1, text=f"Level: {player.components.get(Level, 1)}")
+        console.print(x=x + 1, y=y + 2, text=f"XP: {player.components.get(XP, 0)}")
         console.print(
             x=x + 1,
             y=y + 3,
-            string=f"XP for next Level: {required_xp_for_level(player) - player.components.get(XP, 0)}",
+            text=f"XP for next Level: {required_xp_for_level(player) - player.components.get(XP, 0)}",
         )
 
-        console.print(x=x + 1, y=y + 4, string=f"Attack: {player.components[Power]}")
-        console.print(x=x + 1, y=y + 5, string=f"Defense: {player.components[Defense]}")
+        console.print(x=x + 1, y=y + 4, text=f"Attack: {player.components[Power]}")
+        console.print(x=x + 1, y=y + 5, text=f"Defense: {player.components[Defense]}")
 
     def on_event(self, event: tcod.event.Event) -> State:
         """Exit state on any key."""

@@ -162,7 +162,7 @@ def tunnel_between_indices(
 
 def generate_dungeon(  # noqa: C901
     *,
-    world: tcod.ecs.World,
+    world: tcod.ecs.Registry,
     shape: tuple[int, int],
     max_rooms: int = 20,
     room_min_size: int = 6,
