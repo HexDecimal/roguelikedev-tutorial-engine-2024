@@ -49,6 +49,8 @@ def new_world() -> tcod.ecs.Registry:
 
     player = game.actor_tools.spawn_actor(world["player"], start.components[Position])
     player.tags.add(IsPlayer)
+    player.components[Name] = "Player"
+    player.components[Graphic] = Graphic(ord("@"), (255, 255, 255))
     equip_item(player, world["dagger"].instantiate())
     equip_item(player, world["leather_armor"].instantiate())
 
@@ -84,7 +86,8 @@ def init_new_creature(
 
 def init_creatures(world: tcod.ecs.Registry) -> None:
     """Initialize monster database."""
-    init_new_creature(world, name="player", ch=ord("@"), fg=(255, 255, 255), hp=30, power=2, defense=1, xp=0)
+    init_new_creature(world, name="human", ch=ord("U"), fg=(255, 255, 255), hp=30, power=2, defense=1, xp=0)
+    world["player"].relation_tag[tcod.ecs.IsA] = world["human"]
     init_new_creature(
         world, name="orc", ch=ord("o"), fg=(63, 127, 63), hp=10, power=3, defense=0, xp=35, spawn_weight=((1, 80),)
     )
