@@ -38,7 +38,7 @@ class Position:
     def distance_squared(self, other: Position) -> int:
         """Return the squared distance between two positions."""
         assert self.map == other.map
-        return (self.x - other.x) ** 2 + (self.y - other.y) ** 1
+        return (self.x - other.x) ** 2 + (self.y - other.y) ** 2
 
 
 @attrs.define(frozen=True)
