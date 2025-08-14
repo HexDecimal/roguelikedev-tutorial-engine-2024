@@ -10,7 +10,7 @@ from pathlib import Path
 import tcod.ecs
 
 import game.world_init
-from game.components import COMPONENT_MIGRATIONS
+from game.components import COMPONENT_MIGRATIONS, AssignedKey
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +32,9 @@ def load_world(path: Path) -> tcod.ecs.Registry:
     for old_component, new_component in COMPONENT_MIGRATIONS:
         for e in list(world.Q.all_of(components=[old_component])):
             e.components[new_component] = e.components.pop(old_component)
+
+    for e in world.Q.all_of(components=[AssignedKey]):  # Migrate old key symbols to uppercase for SDL3
+        e.components[AssignedKey] = e.components[AssignedKey].upper()
 
     game.world_init.init_creatures(world)
     game.world_init.init_items(world)

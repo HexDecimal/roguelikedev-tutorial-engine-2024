@@ -39,4 +39,4 @@ DIRECTION_KEYS: Final = {
     KeySym.PERIOD: (0, 0),
 }
 
-INVENTORY_KEYS = "abcdefghijklmnopqrstuvwxyz"
+INVENTORY_KEYS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
